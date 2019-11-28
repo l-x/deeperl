@@ -1,7 +1,7 @@
 {application, deeperl,
   [{description, "Erlang client app for the DeepL API"},
     {vsn, "0.1.0"},
-    {registered, []},
+    {registered, [deeperl]},
     {mod, {deeperl_app, []}},
     {applications,
       [kernel,
@@ -13,5 +13,5 @@
     {modules, [deeperl, deeperl_app, deeperl_languages, deeperl_sup, deeperl_translate, deeperl_usage, gen_deeperl_procedure]},
     {maintainers, []},
     {licenses, ["Apache 2.0"]},
-    {links, []}
+    {links, [{"GitHub", "https://github.com/erlware/relx"}]}
   ]}.
