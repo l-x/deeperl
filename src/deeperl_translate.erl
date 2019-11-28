@@ -45,29 +45,29 @@ format_translate_options([], Acc) ->
 
 format_translate_option({source_lang, Value}) ->
     {"source_lang", string:uppercase(atom_to_list(Value))};
-format_translate_option({split_sentences, Value}) ->
+format_translate_option({split_sentences, Value}) when is_boolean(Value); Value == nonewlines ->
     {"split_sentences", case Value of
         true -> "1";
         false -> "0";
         nonewlines -> "nonewlines"
     end};
-format_translate_option({preserve_formatting, Value}) ->
+format_translate_option({preserve_formatting, Value}) when is_boolean(Value) ->
     {"preserve_formatting", case Value of
         true -> "1";
         false -> "0"
     end};
 format_translate_option({tag_handling, xml}) ->
     {"tag_handling", "xml"};
-format_translate_option({outline_detection, Value}) ->
+format_translate_option({outline_detection, Value}) when is_boolean(Value) ->
     {"outline_detection", case Value of
         true -> "1";
         false -> "0"
     end};
-format_translate_option({non_splitting_tags, Value}) ->
+format_translate_option({non_splitting_tags, Value}) when is_list(Value) ->
     {"non_splitting_tags", string:join(lists:map(fun http_uri:encode/1, Value), ",")};
-format_translate_option({splitting_tags, Value}) ->
+format_translate_option({splitting_tags, Value}) when is_list(Value) ->
     {"splitting_tags", string:join(lists:map(fun http_uri:encode/1, Value), ",")};
-format_translate_option({ignore_tags, Value}) ->
+format_translate_option({ignore_tags, Value}) when is_list(Value) ->
     {"ignore_tags", string:join(lists:map(fun http_uri:encode/1, Value), ",")};
 format_translate_option(Option) ->
     {error, {badoption, Option}}.

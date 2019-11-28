@@ -24,7 +24,13 @@ start_link() ->
 %%====================================================================
 
 init([]) ->
-    {ok, { {one_for_all, 0, 1}, []} }.
+    ChildSpec = #{
+        id => deeperl,
+        start => {deeperl, start_link, []},
+        restart => permanent,
+        type => worker
+    },
+    {ok, { {one_for_all, 0, 1}, [ChildSpec]} }.
 
 %%====================================================================
 %% Internal functions
