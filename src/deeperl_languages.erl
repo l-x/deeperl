@@ -19,5 +19,5 @@ response([#{<<"language">> := Language, <<"name">> := Name}|R], Acc) ->
     response(R, [Item|Acc]);
 response([], Acc) ->
     lists:reverse(Acc);
-response(_, Acc) ->
+response(_, _Acc) ->
     {error, invalid_response}.
