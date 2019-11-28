@@ -1,10 +1,6 @@
-%%%-------------------------------------------------------------------
-%% @doc deeperl public API
-%% @end
-%%%-------------------------------------------------------------------
+%%% @private
 
 -module(deeperl_app).
-
 -behaviour(application).
 
 %% Application callbacks

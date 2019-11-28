@@ -1,3 +1,5 @@
+%%% @private
+
 -module(deeperl_sup).
 
 -behaviour(supervisor).
