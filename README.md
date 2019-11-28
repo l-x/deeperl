@@ -2,6 +2,8 @@
 
 An Erlang/OTP application for the [DeepL  API].
 
+**HIGHLY EXPERIMENTAL** at the moment, so use at your own risk.
+
 ## Basic usage
 
 ### Start
