@@ -4,31 +4,38 @@
 -behavior(gen_deeperl_procedure).
 
 %% API
--export([uri/0, body_params/1, response/1]).
+-export([uri/0, body/1, response/1]).
+-export_type([result/0]).
+
+-type result() :: [{DetectedSourceLanguage :: deeperl:language(), Text :: binary()}] | {error, invalid_response} | {error, {bad_option, Option :: any()}}.
 
 uri() ->
     "/v2/translate".
 
-body_params([TargetLang, [T|_] = Text, Options]) when is_list(T) ->
+-spec body({TargetLang :: deeperl:language(), Texts :: [iodata()], Options :: deeperl:translation_options()}) -> iodata().
+body({TargetLang, [T|_] = Texts, Options}) when is_list(T) ->
     case format_translate_options(maps:to_list(Options), []) of
         {error, _} = E -> E;
         O ->
-            lists:merge([
-                [{"target_lang", string:uppercase(atom_to_list(TargetLang))}],
-                [{text, V} || V <- Text],
-                O
-            ])
-    end.
+            [
+                [["&text=", http_uri:encode(Text)] || Text <- Texts],
+                [["&", K, "=", V] || {K, V} <- O],
+                "&target_lang=", http_uri:encode(string:uppercase(atom_to_list(TargetLang)))
+            ]
+    end;
+body({_, _, _}) ->
+    {error, bad_text_format}.
 
+-spec response(Data :: map()) -> deeperl:translate_result().
 response(#{<<"translations">> := Translations}) ->
     response(Translations, []);
 response(_) ->
     {error, invalid_response}.
 
 %% internal
-
+-spec response(Data :: map(), Acc :: deeperl:translate_result()) -> deeperl:translate_result().
 response([#{<<"detected_source_language">> := Language, <<"text">> := Text}|Rest], Acc) ->
-    Item = {list_to_atom(string:lowercase(unicode:characters_to_list(Language))), unicode:characters_to_list(Text)},
+    Item = {list_to_atom(string:lowercase(unicode:characters_to_list(Language))), iolist_to_binary(Text)},
     response(Rest, [Item|Acc]);
 response([], Acc) ->
     lists:reverse(Acc);
@@ -70,4 +77,4 @@ format_translate_option({splitting_tags, Value}) when is_list(Value) ->
 format_translate_option({ignore_tags, Value}) when is_list(Value) ->
     {"ignore_tags", string:join(lists:map(fun http_uri:encode/1, Value), ",")};
 format_translate_option(Option) ->
-    {error, {badoption, Option}}.
+    {error, {bad_option, Option}}.

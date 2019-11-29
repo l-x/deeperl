@@ -2,8 +2,8 @@
 -behaviour(gen_server).
 
 %% API
--export([start_link/0, usage/0, languages/0, translate/2, translate/3]).
--export_type([translation_options/0]).
+-export([start_link/0, auth_key/1, usage/0, languages/0, translate/2, translate/3]).
+-export_type([translation_options/0, usage_result/0, languages_result/0, translate_result/0]).
 
 -type language() :: de | en | es | fr | it | nl | pl | pt | ru.
 -type tag_list() :: [nonempty_string()].
@@ -18,6 +18,11 @@
     splitting_tags => tag_list(),
     ignore_tags => tag_list()
 }.
+
+-type usage_result() :: {CharacterCount :: pos_integer(), CharacterLimit :: pos_integer()} | {error, invalid_response} | {error, term()}.
+-type languages_result() :: [{Language :: deeperl:language(), Name :: binary()}] | {error, invalid_response} | {error, term()}.
+-type translate_result() :: [{DetectedSourceLanguage :: deeperl:language(), Text :: iodata()}] | {error, invalid_response} | {error, {bad_option, Option :: any()}} | {error, term()}.
+
 
 %% gen_server callbacks
 -export([init/1,
@@ -60,7 +65,7 @@ handle_call(usage, _From, State) ->
 handle_call(languages, _From, State) ->
     {reply, call(deeperl_languages, [], State), State};
 handle_call({translate, TargetLang, Texts, Options}, _From, State) ->
-    {reply, call(deeperl_translate, [TargetLang, Texts, Options], State), State};
+    {reply, call(deeperl_translate, {TargetLang, Texts, Options}, State), State};
 handle_call(_Request, _From, State) ->
     {reply, ok, State}.
 
@@ -82,53 +87,39 @@ terminate(_Reason, _State) ->
 code_change(_OldVsn, State, _Extra) ->
     {ok, State}.
 
-%% ---------------------------------------------------------------------------------------------------------------------
-%% @doc Get the DeepL usage statistics
-%% @end
-%% ---------------------------------------------------------------------------------------------------------------------
--spec usage() -> {CharacterCount :: non_neg_integer(), CharacterLimit :: non_neg_integer()} | {error, Reason :: term()}.
+-spec usage() -> usage_result().
 usage() ->
     gen_server:call(?SERVER, usage).
 
-%% ---------------------------------------------------------------------------------------------------------------------
-%% @doc Get the languages currently supported by DeepL
-%% @end
-%% ---------------------------------------------------------------------------------------------------------------------
--spec languages() -> [{Language :: language(), Text :: nonempty_string()}] | {error, Reason :: term()}.
+-spec languages() -> languages_result().
 languages() ->
     gen_server:call(?SERVER, languages).
 
-%% ---------------------------------------------------------------------------------------------------------------------
-%% @doc Translate Text
-%% @end
-%% ---------------------------------------------------------------------------------------------------------------------
 -spec translate(
     TargetLang :: language(),
-    Text :: nonempty_string() | [nonempty_string()]
-) -> [{DetectedSourceLanguage :: language(), Text :: nonempty_string()}] | {error, Reason :: term()}.
+    Texts :: [iodata()]
+) -> translate_result().
 translate(TargetLang, Texts) ->
     translate(TargetLang, Texts, #{}).
 
-%% ---------------------------------------------------------------------------------------------------------------------
-%% @doc Translate Text with additional options
-%% @end
-%% ---------------------------------------------------------------------------------------------------------------------
 -spec translate(
     TargetLang :: language(),
-    Text :: nonempty_string() | [nonempty_string()],
+    Text :: [iodata()],
     Options :: translation_options()
-) -> [{DetectedSourceLanguage :: language(), Text :: nonempty_string()}] | {error, Reason :: term()}.
-translate(TargetLang, [T | _] = Texts, Options) when is_list(T) == false ->
-    translate(TargetLang, [Texts], Options);
+) -> translate_result().
 translate(TargetLang, Texts, Options) ->
     gen_server:call(?SERVER, {translate, TargetLang, Texts, Options}).
+
+-spec auth_key(AuthKey :: nonempty_string()) -> ok.
+auth_key(AuthKey) ->
+    application:set_env(deeperl, auth_key, AuthKey).
 
 %%%===================================================================
 %%% Internal functions
 %%%===================================================================
 
 call(Module, Args, State) ->
-    Request = case application:get_env(authkey) of
+    Request = case application:get_env(auth_key) of
                   undefined -> {error, no_authkey};
                   {ok, AuthKey} -> gen_deeperl_procedure:request(Module, AuthKey, Args)
               end,
@@ -136,25 +127,24 @@ call(Module, Args, State) ->
                  {error, _Reason} = RequestError -> RequestError;
                  {Uri, Header, Body} -> request(Uri, Header, Body, State)
              end,
-
     case Result of
         {error, Reason} -> {error, Reason};
         {ok, R} -> gen_deeperl_procedure:response(Module, R)
     end.
 
-request(Uri, Header, Body, #state{conn =  ConnPid, conn_mref = MRef} = State) ->
-    StreamRef = gun:post(State#state.conn, Uri, Header, Body),
-    case gun:await(State#state.conn, StreamRef, 3000, State#state.conn_mref) of
+request(Uri, Header, Body, #state{conn = ConnPid, conn_mref = MRef}) ->
+    StreamRef = gun:post(ConnPid, Uri, Header, Body),
+    case gun:await(ConnPid, StreamRef, 3000, MRef) of
         {response, nofin, 200, _} -> gun:await_body(ConnPid, StreamRef, 1000, MRef);
         {response, fin, 200, _} -> {error, emptyresponse};
-        {response, IsFin, 400, _} -> error_message(IsFin, badrequest, ConnPid, StreamRef, MRef);
-        {response, IsFin, 403, _} -> error_message(IsFin, badauth, ConnPid, StreamRef, MRef);
-        {response, IsFin, 404, _} -> error_message(IsFin, notfound, ConnPid, StreamRef, MRef);
-        {response, IsFin, 413, _} -> error_message(IsFin, sizelimit, ConnPid, StreamRef, MRef);
-        {response, IsFin, 429, _} -> error_message(IsFin, 'too many requests', ConnPid, StreamRef, MRef);
-        {response, IsFin, 456, _} -> error_message(IsFin, 'quota exceeded', ConnPid, StreamRef, MRef);
-        {response, IsFin, 503, _} -> error_message(IsFin, 'resource temporarily unavailable', ConnPid, StreamRef, MRef);
-        {response, IsFin, _, _} -> error_message(IsFin, 'unknown error', ConnPid, StreamRef, MRef);
+        {response, IsFin, 400, _} -> error_message(IsFin, bad_request, ConnPid, StreamRef, MRef);
+        {response, IsFin, 403, _} -> error_message(IsFin, bad_auth, ConnPid, StreamRef, MRef);
+        {response, IsFin, 404, _} -> error_message(IsFin, not_found, ConnPid, StreamRef, MRef);
+        {response, IsFin, 413, _} -> error_message(IsFin, size_limit, ConnPid, StreamRef, MRef);
+        {response, IsFin, 429, _} -> error_message(IsFin, too_many_requests, ConnPid, StreamRef, MRef);
+        {response, IsFin, 456, _} -> error_message(IsFin, quota_exceeded, ConnPid, StreamRef, MRef);
+        {response, IsFin, 503, _} -> error_message(IsFin, temporarily_unavailable, ConnPid, StreamRef, MRef);
+        {response, IsFin, _, _} -> error_message(IsFin, unknown_error, ConnPid, StreamRef, MRef);
         {error, _} = Error -> Error
     end.
 
@@ -162,4 +152,4 @@ error_message(fin, Error, _ConnPid, _StreamRef, _MRef) ->
     {error, Error};
 error_message(nofin, Error, ConnPid, StreamRef, MRef) ->
     {ok, Body} = gun:await_body(ConnPid, StreamRef, 1000, MRef),
-    {error, {Error, jiffy:decode(Body, [return_maps])}}.
+    {error, {Error, Body}}.

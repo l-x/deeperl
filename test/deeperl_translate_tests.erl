@@ -3,7 +3,7 @@
 -include_lib("eunit/include/eunit.hrl").
 
 -define(DEFAULT_HEADER,     [
-    {<<"content-type">>, "application/x-www-form-urlencoded"},
+    {<<"content-type">>, "application/x-www-form-urlencoded; charset=utf-8"},
     {<<"user-agent">>, "deeperl/0.1.0"}
 ]).
 
@@ -27,19 +27,19 @@ request_test() ->
 
     assertRequest(en, ["simple text"], #{non_splitting_tags => []}, "text=simple%20text&non_splitting_tags=&target_lang=EN"),
     assertRequest(en, ["simple text"], #{non_splitting_tags => ["fu"]}, "text=simple%20text&non_splitting_tags=fu&target_lang=EN"),
-    assertRequest(en, ["simple text"], #{non_splitting_tags => ["fu", "bar"]}, "text=simple%20text&non_splitting_tags=fu%2Cbar&target_lang=EN"),
+    assertRequest(en, ["simple text"], #{non_splitting_tags => ["fu", "bar"]}, "text=simple%20text&non_splitting_tags=fu,bar&target_lang=EN"),
 
     assertRequest(en, ["simple text"], #{splitting_tags => []}, "text=simple%20text&splitting_tags=&target_lang=EN"),
     assertRequest(en, ["simple text"], #{splitting_tags => ["fu"]}, "text=simple%20text&splitting_tags=fu&target_lang=EN"),
-    assertRequest(en, ["simple text"], #{splitting_tags => ["fu", "bar"]}, "text=simple%20text&splitting_tags=fu%2Cbar&target_lang=EN"),
+    assertRequest(en, ["simple text"], #{splitting_tags => ["fu", "bar"]}, "text=simple%20text&splitting_tags=fu,bar&target_lang=EN"),
 
     assertRequest(ru, ["simple text"], #{ignore_tags => []}, "text=simple%20text&ignore_tags=&target_lang=RU"),
     assertRequest(ru, ["simple text"], #{ignore_tags => ["fu"]}, "text=simple%20text&ignore_tags=fu&target_lang=RU"),
-    assertRequest(ru, ["simple text"], #{ignore_tags => ["fu", "bar"]}, "text=simple%20text&ignore_tags=fu%2Cbar&target_lang=RU"),
+    assertRequest(ru, ["simple text"], #{ignore_tags => ["fu", "bar"]}, "text=simple%20text&ignore_tags=fu,bar&target_lang=RU"),
 
     ?assertEqual(
-        {error, {badoption, {invalid, option}}},
-        gen_deeperl_procedure:request(deeperl_translate, "authkey", [en, ["text"], #{invalid => option}])
+        {error, {bad_option, {invalid, option}}},
+        gen_deeperl_procedure:request(deeperl_translate, "authkey", {en, ["text"], #{invalid => option}})
     ),
 
     ok.
@@ -47,26 +47,14 @@ request_test() ->
 response_test() ->
     [
         ?assertEqual(
-            [{en,"Das ist der erste Satz."}, {en,"Das ist der zweite Satz."}, {en,"Dies ist der dritte Satz."}],
+            [{en,<<"Das ist der erste Satz.">>}, {en,<<"Das ist der zweite Satz.">>}, {en,<<"Dies ist der dritte Satz.">>}],
             gen_deeperl_procedure:response(deeperl_translate, <<"{\"translations\": [{\"detected_source_language\":\"EN\", \"text\":\"Das ist der erste Satz.\"},{\"detected_source_language\":\"EN\", \"text\":\"Das ist der zweite Satz.\"},{\"detected_source_language\":\"EN\", \"text\":\"Dies ist der dritte Satz.\"}]}">>)
-        ),
-        ?assertEqual(
-            {error, {invalid_response, <<"{\"translation\": [{\"detected_source_language\":\"EN\", \"text\":\"Das ist der erste Satz.\"},{\"detected_source_language\":\"EN\", \"text\":\"Das ist der zweite Satz.\"},{\"detected_source_language\":\"EN\", \"text\":\"Dies ist der dritte Satz.\"}]}">>}},
-            gen_deeperl_procedure:response(deeperl_translate, <<"{\"translation\": [{\"detected_source_language\":\"EN\", \"text\":\"Das ist der erste Satz.\"},{\"detected_source_language\":\"EN\", \"text\":\"Das ist der zweite Satz.\"},{\"detected_source_language\":\"EN\", \"text\":\"Dies ist der dritte Satz.\"}]}">>)
-        ),
-        ?assertEqual(
-            {error, {invalid_response, <<"{\"translations\": [{\"detected_source_languag\":\"EN\", \"text\":\"Das ist der erste Satz.\"},{\"detected_source_language\":\"EN\", \"text\":\"Das ist der zweite Satz.\"},{\"detected_source_language\":\"EN\", \"text\":\"Dies ist der dritte Satz.\"}]}">>}},
-            gen_deeperl_procedure:response(deeperl_translate, <<"{\"translations\": [{\"detected_source_languag\":\"EN\", \"text\":\"Das ist der erste Satz.\"},{\"detected_source_language\":\"EN\", \"text\":\"Das ist der zweite Satz.\"},{\"detected_source_language\":\"EN\", \"text\":\"Dies ist der dritte Satz.\"}]}">>)
-        ),
-        ?assertEqual(
-            {error, {invalid_json, <<"{\"translations\": [{\"detected_source_language\"\"EN\", \"text\":\"Das ist der erste Satz.\"},{\"detected_source_language\":\"EN\", \"text\":\"Das ist der zweite Satz.\"},{\"detected_source_language\":\"EN\", \"text\":\"Dies ist der dritte Satz.\"}]}">>}},
-            gen_deeperl_procedure:response(deeperl_translate, <<"{\"translations\": [{\"detected_source_language\"\"EN\", \"text\":\"Das ist der erste Satz.\"},{\"detected_source_language\":\"EN\", \"text\":\"Das ist der zweite Satz.\"},{\"detected_source_language\":\"EN\", \"text\":\"Dies ist der dritte Satz.\"}]}">>)
         )
     ].
 
 assertRequest(TargetLang, Text, Options, ExpectedBody) ->
-    {Uri, Header, Body} = gen_deeperl_procedure:request(deeperl_translate, "authkey", [TargetLang,Text, Options]),
+    {Uri, Header, Body} = gen_deeperl_procedure:request(deeperl_translate, "authkey", {TargetLang,Text, Options}),
 
     ?assertEqual("/v2/translate", Uri),
     ?assertEqual(?DEFAULT_HEADER, Header),
-    ?assertEqual("auth_key=authkey&" ++ ExpectedBody, Body).
+    ?assertEqual("auth_key=authkey&" ++ ExpectedBody, lists:flatten(Body)).
