@@ -4,7 +4,8 @@ An Erlang/OTP application for the official [DeepL  API].
 
 **HIGHLY EXPERIMENTAL** at the moment, so use at your own risk.
 
-[![Hex pm](http://img.shields.io/hexpm/v/deeperl.svg?style=flat)](https://hex.pm/packages/deeperl)
+[![Hex pm](https://img.shields.io/hexpm/v/deeperl.svg?style=flat)](https://hex.pm/packages/deeperl)
+[![Gitter](https://badges.gitter.im/l-x/deeperl.svg)](https://gitter.im/l-x/deeperl?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 
 ## Configuration
 
@@ -34,14 +35,14 @@ Or add deeperl to the applications property of your .app files.
 
 ## Basic usage
 ### Monitoring usage
-Official API documentation: [https://www.deepl.com/docs-api.html?part=other#other__usage]
+Official API documentation: <https://www.deepl.com/docs-api.html?part=other#other__usage>
 ```erlang
 1> {CharacterCount, CharacterLimit} = deeperl:usage().
 {23586,50000000}
 ````
 
 ### Listing supported languages
-Official API documentation: [https://www.deepl.com/docs-api.html?part=other#other__languages]
+Official API documentation: <https://www.deepl.com/docs-api.html?part=other#other__languages>
 ```erlang
 2> Languages = deeperl:languages().
 [{en,<<"English">>},
@@ -56,7 +57,7 @@ Official API documentation: [https://www.deepl.com/docs-api.html?part=other#othe
 ````
 
 ### Translating text
-Official API documentation: [https://www.deepl.com/docs-api.html?part=translating_text]
+Official API documentation: <https://www.deepl.com/docs-api.html?part=translating_text>
 
 ```erlang
 3> TargetLanguage = it,
