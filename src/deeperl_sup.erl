@@ -30,7 +30,7 @@ init([]) ->
         restart => permanent,
         type => worker
     },
-    {ok, { {one_for_all, 0, 1}, [ChildSpec]} }.
+    {ok, { {one_for_all, 1, 5}, [ChildSpec]} }.
 
 %%====================================================================
 %% Internal functions
