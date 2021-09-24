@@ -94,7 +94,7 @@ The purpose of each option is described in the API documentation of DeepL.
 The type specification for the options are:
 ```erlang
 -type translation_options() :: #{
-    source_lang => bg | cs | da | de | el | en | es | et | fi | fr | hu | it | ja | lt | lv | nl | pl | pt | ro | ru | sk | sl | sv | zh,
+    source_lang => nonempty_string(),
     split_sentences => boolean() | nonewlines,
     preserve_formatting => boolean(),
     tag_handling => xml,

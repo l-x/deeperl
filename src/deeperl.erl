@@ -5,7 +5,7 @@
 -export([start_link/0, auth_key/1, usage/0, languages/0, translate/2, translate/3]).
 -export_type([translation_options/0, usage_result/0, languages_result/0, translate_result/0]).
 
--type language() :: bg | cs | da | de | el | en | es | et | fi | fr | hu | it | ja | lt | lv | nl | pl | pt | ro | ru | sk | sl | sv | zh.
+-type language() :: nonempty_string().
 -type tag_list() :: [nonempty_string()].
 
 -type translation_options() :: #{
@@ -20,7 +20,7 @@
 }.
 
 -type usage_result() :: {CharacterCount :: pos_integer(), CharacterLimit :: pos_integer()} | {error, invalid_response} | {error, term()}.
--type languages_result() :: [{Language :: deeperl:language(), Name :: binary()}] | {error, invalid_response} | {error, term()}.
+-type languages_result() :: [{Language :: deeperl:language(), Name :: binary(), SupportsFormality :: boolean()}] | {error, invalid_response} | {error, term()}.
 -type translate_result() :: [{DetectedSourceLanguage :: deeperl:language(), Text :: iodata()}] | {error, invalid_response} | {error, {bad_option, Option :: any()}} | {error, term()}.
 
 
