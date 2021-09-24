@@ -5,7 +5,7 @@
 -export([start_link/0, auth_key/1, usage/0, languages/0, translate/2, translate/3]).
 -export_type([translation_options/0, usage_result/0, languages_result/0, translate_result/0]).
 
--type language() :: de | en | es | fr | it | nl | pl | pt | ru.
+-type language() :: bg | cs | da | de | el | en | es | et | fi | fr | hu | it | ja | lt | lv | nl | pl | pt | ro | ru | sk | sl | sv | zh.
 -type tag_list() :: [nonempty_string()].
 
 -type translation_options() :: #{

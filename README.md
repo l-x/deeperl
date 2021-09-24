@@ -45,15 +45,30 @@ Official API documentation: <https://www.deepl.com/docs-api.html?part=other#othe
 Official API documentation: <https://www.deepl.com/docs-api.html?part=other#other__languages>
 ```erlang
 2> Languages = deeperl:languages().
-[{en,<<"English">>},
+[{bg,<<"Bulgarian">>},
+ {cs,<<"Czech">>},
+ {da,<<"Danish">>},
  {de,<<"German">>},
- {fr,<<"French">>},
+ {el,<<"Greek">>},
+ {en,<<"English">>},
  {es,<<"Spanish">>},
- {pt,<<"Portuguese">>},
+ {et,<<"Estonian">>},
+ {fi,<<"Finnish">>},
+ {fr,<<"French">>},
+ {hu,<<"Hungarian">>},
  {it,<<"Italian">>},
+ {ja,<<"Japanese">>},
+ {lt,<<"Lithuanian">>},
+ {lv,<<"Latvian">>},
  {nl,<<"Dutch">>},
  {pl,<<"Polish">>},
- {ru,<<"Russian">>}]
+ {pt,<<"Portuguese">>},
+ {ro,<<"Romanian">>},
+ {ru,<<"Russian">>},
+ {sk,<<"Slovak">>},
+ {sl,<<"Slovenian">>},
+ {sv,<<"Swedish">>},
+ {zh,<<"Chinese">>}]
 ````
 
 ### Translating text
