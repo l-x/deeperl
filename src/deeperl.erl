@@ -1,47 +1,114 @@
 -module(deeperl).
 -behaviour(gen_server).
 
-%% API
--export([start_link/0, auth_key/1, usage/0, languages/0, translate/2, translate/3]).
--export_type([translation_options/0, usage_result/0, languages_result/0, translate_result/0]).
+-type language() :: nonempty_list().
 
--type language() :: nonempty_string().
--type tag_list() :: [nonempty_string()].
+-type glossary_id() :: nonempty_list().
+-type glossary_name() :: nonempty_list().
 
--type translation_options() :: #{
+-type glossary() :: #{
+    glossary_id => glossary_id(), 
+    name => glossary_name(),
     source_lang => language(),
-    split_sentences => boolean() | nonewlines,
-    preserve_formatting => boolean(),
-    tag_handling => xml,
-    non_splitting_tags =>  tag_list(),
-    outline_detection => boolean(),
-    splitting_tags => tag_list(),
-    ignore_tags => tag_list()
+    target_lang => language(),
+    creation_time => nonempty_list(),
+    entry_count => integer()
 }.
 
--type usage_result() :: {CharacterCount :: pos_integer(), CharacterLimit :: pos_integer()} | {error, invalid_response} | {error, term()}.
--type languages_result() :: [{Language :: deeperl:language(), Name :: binary(), SupportsFormality :: boolean()}] | {error, invalid_response} | {error, term()}.
--type translate_result() :: [{DetectedSourceLanguage :: deeperl:language(), Text :: iodata()}] | {error, invalid_response} | {error, {bad_option, Option :: any()}} | {error, term()}.
+-type glossary_entry() :: {nonempty_list(), nonempty_list()}.
+-type glossary_entries() :: [glossary_entry()].
 
+%% API
+
+-export_types([
+    language/0,
+    glossary_id/0,
+    glossary_name/0,
+    glossary/0,
+    glossary_entry/0,
+    glossary_entries/0
+]).
+
+-export([
+    start_link/0, 
+    auth_key/1,
+
+    glossary_list/0, 
+    glossary_information/1, 
+    glossary_entries/1,
+    glossary_delete/1,
+    glossary_create/4,
+    
+    translate/2,
+    translate/3,
+
+    source_languages/0,
+    target_languages/0,
+    
+    usage/0
+]).
 
 %% gen_server callbacks
--export([init/1,
+-export([
+    init/1,
     handle_call/3,
     handle_cast/2,
     handle_info/2,
     terminate/2,
-    code_change/3]).
+    code_change/3
+]).
 
 -define(SERVER, ?MODULE).
 
--record(state, {
-    conn :: pid(),
-    conn_mref :: erlang:monitor_process_identifier()
-}).
+-record(state, {}).
 
 %%%===================================================================
 %%% API
 %%%===================================================================
+
+-spec auth_key(AuthKey :: nonempty_list()) -> ok.
+auth_key(AuthKey) ->
+    application:set_env(deeperl, auth_key, AuthKey).
+
+-spec glossary_list() -> {ok, [glossary()]}.
+glossary_list() ->
+    gen_server:call(?SERVER, {list_glossaries}).
+
+-spec glossary_information(GlossaryId :: glossary_id()) -> {ok, glossary()} | {error, atom(), term()}.
+glossary_information(GlossaryId) ->
+    gen_server:call(?SERVER, {glossary_information, GlossaryId}).
+
+-spec glossary_entries(GlossaryId :: glossary_id()) -> {ok, glossary()} | {error, atom(), term()}.
+glossary_entries(GlossaryId) ->
+    gen_server:call(?SERVER, {glossary_entries, GlossaryId}).
+
+-spec glossary_delete(GlossaryId :: glossary_id()) -> ok | {error, atom(), term()}.
+glossary_delete(GlossaryId) ->
+    gen_server:call(?SERVER, {delete_glossary, GlossaryId}).
+
+-spec glossary_create(
+        Name :: glossary_name(), 
+        SourceLang :: language(), 
+        TargetLang :: language(), 
+        Entries :: glossary_entries()
+    ) -> {ok, glossary()} | {error, atom(), term()}.
+glossary_create(Name, SourceLang, TargetLang, Entries) ->
+    gen_server:call(?SERVER, {create_glossary, Name, SourceLang, TargetLang, Entries}).
+
+translate(TargetLang, Texts) ->
+    translate(TargetLang, Texts, #{}).
+
+translate(TargetLang, Texts, #{} = Options) ->
+    gen_server:call(?SERVER, {translate, TargetLang, Texts, Options}).
+
+source_languages() ->
+    gen_server:call(?SERVER, {source_languages}).
+
+target_languages() ->
+    gen_server:call(?SERVER, {target_languages}).
+
+usage() ->
+    gen_server:call(?SERVER, {usage}).
 
 %% @private
 start_link() ->
@@ -49,23 +116,62 @@ start_link() ->
 
 %% @private
 init(_) ->
-    GunOpts = case application:get_env(gun_opts) of
-                  undefined -> #{};
-                  {ok, Opts} -> Opts
-              end,
-    {ok, ConnPid} = gun:open("api.deepl.com", 443, GunOpts),
-    {ok, #state{
-        conn = ConnPid,
-        conn_mref = monitor(process, ConnPid)
-    }}.
+    {ok, #state{}}.
 
 %% @private
-handle_call(usage, _From, State) ->
-    {reply, call(deeperl_usage, [], State), State};
-handle_call(languages, _From, State) ->
-    {reply, call(deeperl_languages, [], State), State};
-handle_call({translate, TargetLang, Texts, Options}, _From, State) ->
-    {reply, call(deeperl_translate, {TargetLang, Texts, Options}, State), State};
+handle_call({list_glossaries}, _From, State) ->
+    {ok, AuthKey} = auth_key(),
+
+    {reply, deeperl_client:call(AuthKey, deeperl_glossary:list()), State};
+
+handle_call({glossary_information, GlossaryId}, _From, State) ->
+    {ok, AuthKey} = auth_key(),
+
+    {reply, deeperl_client:call(AuthKey, deeperl_glossary:information(GlossaryId)), State};
+
+handle_call({glossary_entries, GlossaryId}, _From, State) ->
+    {ok, AuthKey} = auth_key(),
+
+    {reply, deeperl_client:call(AuthKey, deeperl_glossary:entries(GlossaryId)), State};
+
+handle_call({delete_glossary, GlossaryId}, _From, State) ->
+    {ok, AuthKey} = auth_key(),
+
+    {reply, deeperl_client:call(AuthKey, deeperl_glossary:delete(GlossaryId)), State};
+
+handle_call({create_glossary, Name, SourceLang, TargetLang, Entries}, _From, State) ->
+    {ok, AuthKey} = auth_key(),
+    FunctionConfig = deeperl_glossary:create(
+        Name,
+        SourceLang,
+        TargetLang,
+        Entries
+    ),
+
+    {reply, deeperl_client:call(AuthKey, FunctionConfig), State};
+
+
+handle_call({translate, TargetLang, Texts, #{} = Options}, _From, State) ->
+    {ok, AuthKey} = auth_key(),
+
+    {reply, deeperl_client:call(AuthKey, deeperl_translation:translate(TargetLang, Texts, Options)), State};
+
+handle_call({source_languages}, _From, State) ->
+    {ok, AuthKey} = auth_key(),
+
+    {reply, deeperl_client:call(AuthKey, deeperl_translation:source_languages()), State};
+
+handle_call({target_languages}, _From, State) ->
+    {ok, AuthKey} = auth_key(),
+
+    {reply, deeperl_client:call(AuthKey, deeperl_translation:target_languages()), State};
+
+handle_call({usage}, _From, State) ->
+    {ok, AuthKey} = auth_key(),
+
+    {reply, deeperl_client:call(AuthKey, deeperl_translation:usage()), State};
+
+%% @private
 handle_call(_Request, _From, State) ->
     {reply, ok, State}.
 
@@ -74,8 +180,6 @@ handle_cast(_Request, State) ->
     {noreply, State}.
 
 %% @private
-handle_info({'DOWN', Mref, process, _ConnPid, Reason}, #state{conn_mref = Mref}) ->
-    exit(Reason);
 handle_info(_Info, State) ->
     {noreply, State}.
 
@@ -87,69 +191,5 @@ terminate(_Reason, _State) ->
 code_change(_OldVsn, State, _Extra) ->
     {ok, State}.
 
--spec usage() -> usage_result().
-usage() ->
-    gen_server:call(?SERVER, usage).
-
--spec languages() -> languages_result().
-languages() ->
-    gen_server:call(?SERVER, languages).
-
--spec translate(
-    TargetLang :: language(),
-    Texts :: [iodata()]
-) -> translate_result().
-translate(TargetLang, Texts) ->
-    translate(TargetLang, Texts, #{}).
-
--spec translate(
-    TargetLang :: language(),
-    Text :: [iodata()],
-    Options :: translation_options()
-) -> translate_result().
-translate(TargetLang, Texts, Options) ->
-    gen_server:call(?SERVER, {translate, TargetLang, Texts, Options}).
-
--spec auth_key(AuthKey :: nonempty_string()) -> ok.
-auth_key(AuthKey) ->
-    application:set_env(deeperl, auth_key, AuthKey).
-
-%%%===================================================================
-%%% Internal functions
-%%%===================================================================
-
-call(Module, Args, State) ->
-    Request = case application:get_env(auth_key) of
-                  undefined -> {error, no_authkey};
-                  {ok, AuthKey} -> gen_deeperl_procedure:request(Module, AuthKey, Args)
-              end,
-    Result = case Request of
-                 {error, _Reason} = RequestError -> RequestError;
-                 {Uri, Header, Body} -> request(Uri, Header, Body, State)
-             end,
-    case Result of
-        {error, Reason} -> {error, Reason};
-        {ok, R} -> gen_deeperl_procedure:response(Module, R)
-    end.
-
-request(Uri, Header, Body, #state{conn = ConnPid, conn_mref = MRef}) ->
-    StreamRef = gun:post(ConnPid, Uri, Header, Body),
-    case gun:await(ConnPid, StreamRef, 3000, MRef) of
-        {response, nofin, 200, _} -> gun:await_body(ConnPid, StreamRef, 1000, MRef);
-        {response, fin, 200, _} -> {error, emptyresponse};
-        {response, IsFin, 400, _} -> error_message(IsFin, bad_request, ConnPid, StreamRef, MRef);
-        {response, IsFin, 403, _} -> error_message(IsFin, bad_auth, ConnPid, StreamRef, MRef);
-        {response, IsFin, 404, _} -> error_message(IsFin, not_found, ConnPid, StreamRef, MRef);
-        {response, IsFin, 413, _} -> error_message(IsFin, size_limit, ConnPid, StreamRef, MRef);
-        {response, IsFin, 429, _} -> error_message(IsFin, too_many_requests, ConnPid, StreamRef, MRef);
-        {response, IsFin, 456, _} -> error_message(IsFin, quota_exceeded, ConnPid, StreamRef, MRef);
-        {response, IsFin, 503, _} -> error_message(IsFin, temporarily_unavailable, ConnPid, StreamRef, MRef);
-        {response, IsFin, _, _} -> error_message(IsFin, unknown_error, ConnPid, StreamRef, MRef);
-        {error, _} = Error -> Error
-    end.
-
-error_message(fin, Error, _ConnPid, _StreamRef, _MRef) ->
-    {error, Error};
-error_message(nofin, Error, ConnPid, StreamRef, MRef) ->
-    {ok, Body} = gun:await_body(ConnPid, StreamRef, 1000, MRef),
-    {error, {Error, Body}}.
+auth_key() ->
+    application:get_env(deeperl, auth_key).
