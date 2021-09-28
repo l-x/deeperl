@@ -4,7 +4,7 @@
 
 # deeperl
 
-An Erlang/OTP client application for the official [DeepL  API].
+An Erlang/OTP client application for the official [DeepL  API] Version 2.
 
 **HIGHLY EXPERIMENTAL** and work in progress atm, so use at your own risk.
 
@@ -29,6 +29,7 @@ $ rebar3 shell
 Or add deeperl to the applications property of your .app files.
 
 ### Authentication
+> https://www.deepl.com/docs-api/accessing-the-api/authentication/
 
 The DeepL authentication key can be set in the application environment using the `auth_key` setting or at runtime: 
 
@@ -40,23 +41,39 @@ Changing the authentication key at runtime will take effect immediately.
 
 **Note**: deeperl recognizes which API endpoint (api-free.deepl.com or api.deepl.com) to use based on the token. 
 ### Translating Text
+> https://www.deepl.com/docs-api/translating-text/
 
-### Glossaries
 
-#### Listing all glossaries
+### Translating documents
+> https://www.deepl.com/docs-api/translating-documents/
 
-#### Getting detailed information for a glossary
+Translating documents is not supported yet.
 
-#### Getting entries for a glossary
+### Managing glossaries
+> https://www.deepl.com/docs-api/managing-glossaries/
+
+#### Creating a glossary
+> https://www.deepl.com/docs-api/managing-glossaries/creating-a-glossary/
+
+#### Listing glossaries
+> https://www.deepl.com/docs-api/managing-glossaries/listing-glossaries/
+
+#### Listing glossary information
+> https://www.deepl.com/docs-api/managing-glossaries/listing-glossary-information/
+
+#### Listing entries of a glossary
+> https://www.deepl.com/docs-api/managing-glossaries/listing-entries-of-a-glossary/
+
+#### Deleting a glossary
+> https://www.deepl.com/docs-api/managing-glossaries/deleing-a-glossary/
 
 ### Other functions
 
-#### Getting the list of all supported source languages
+#### Listing supported languages
+> https://www.deepl.com/docs-api/other-functions/listing-supported-languages/
 
-#### Getting the list of all supported target languages
+#### Monitoring usage
+> https://www.deepl.com/docs-api/other-functions/monitoring-usage/
 
-#### Getting your account's usage metrics
-
-
-[DeepL  API]: https://www.deepl.com/docs-api.html
+[DeepL  API]: https://www.deepl.com/de/docs-api/
 [hex]: https://hex.pm/packages/deeperl
