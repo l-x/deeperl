@@ -10,11 +10,22 @@
     delete/1    
 ]).
 
-glossary(#{} = ResultMap) ->
-    F = fun (K, V, Map) when is_binary(V) -> maps:put(binary_to_list(K), binary_to_list(V), Map);
-            (K, V, Map) -> maps:put(binary_to_list(K), V, Map) end,
-
-    maps:fold(F, #{}, ResultMap).
+glossary(#{
+    <<"glossary_id">> := Id, 
+    <<"name">> := Name, 
+    <<"source_lang">> := SourceLang,
+    <<"target_lang">> := TargetLang,
+    <<"creation_time">> := CreationTime,
+    <<"entry_count">> := EntryCount
+}) ->
+    #{
+        id => binary_to_list(Id),
+        name => Name,
+        source_lang => binary_to_list(SourceLang),
+        target_lang => binary_to_list(TargetLang),
+        creation_time => binary_to_list(CreationTime),
+        entry_count => EntryCount
+    }.
 
 entries(GlossaryId) ->
     {
@@ -22,12 +33,9 @@ entries(GlossaryId) ->
             get,
             {"/v2/glossaries/" ++ GlossaryId ++ "/entries", []}
         },
-        fun
-            (200, ResponseBody) ->
-                Result = [list_to_tuple(string:split(L, "\t")) || L <-string:split(ResponseBody, "\n")],
-                {ok, Result};
-            (404, _) ->
-                {error, not_found, GlossaryId}
+        fun ({200, _}, ResponseBody) ->
+            Result = [list_to_tuple(string:split(L, "\t"))|| L <-string:split(list_to_binary(ResponseBody), "\n")],
+            {ok, Result}
         end
     }.
 
@@ -37,12 +45,9 @@ information(GlossaryId) ->
             get,
             {"/v2/glossaries/" ++ GlossaryId, []}
         },
-        fun
-            (200, ResponseBody) ->
-                Result = jiffy:decode(ResponseBody, [return_maps]),
-                {ok, glossary(Result)};
-            (404, _) ->
-                {error, not_found, GlossaryId}
+        fun ({200, _}, ResponseBody) ->
+            Result = jiffy:decode(ResponseBody, [return_maps]),
+            {ok, glossary(Result)}
         end
     }.
 
@@ -52,7 +57,7 @@ list() ->
             get,
             {"/v2/glossaries", []}
         },
-        fun(200, ResponseBody) ->
+        fun({200, _}, ResponseBody) ->
             Result = jiffy:decode(ResponseBody, [return_maps]),
             {ok, [glossary(Map) || Map <- maps:get(<<"glossaries">>, Result)]}
         end
@@ -64,12 +69,7 @@ delete(GlossaryId) ->
             delete,
             {"/v2/glossaries/" ++ GlossaryId, []}
         },
-        fun
-            (204, _) ->
-                ok;
-            (404, _) ->
-                {error, not_found, GlossaryId}
-        end
+        fun ({204, _}, _) -> ok end
     }.
 
 create(Name, SourceLang, TargetLang, Entries) ->
@@ -77,7 +77,7 @@ create(Name, SourceLang, TargetLang, Entries) ->
         {"name", Name},
         {"source_lang", SourceLang},
         {"target_lang", TargetLang},
-        {"entries", string:join([From ++ "\t" ++ To || {From, To} <- Entries], "\n")},
+        {"entries", string:join([binary_to_list(iolist_to_binary([From, "\t", To])) || {From, To} <- Entries], "\n")},
         {"entries_format", "tsv"}
     ],
     {
@@ -90,7 +90,7 @@ create(Name, SourceLang, TargetLang, Entries) ->
                 uri_string:compose_query(Params)
             }
         },
-        fun(201, ResponseBody) ->
+        fun({201, _}, ResponseBody) ->
             Result = jiffy:decode(ResponseBody, [return_maps]),
             {ok, glossary(Result)}
         end

@@ -4,7 +4,8 @@
 -type language() :: nonempty_list().
 
 -type glossary_id() :: nonempty_list().
--type glossary_name() :: nonempty_list().
+
+-type glossary_name() :: iolist().
 
 -type glossary() :: #{
     glossary_id => glossary_id(), 
@@ -15,18 +16,39 @@
     entry_count => integer()
 }.
 
--type glossary_entry() :: {nonempty_list(), nonempty_list()}.
+-type glossary_entry() :: {iolist(), iolist()}.
 -type glossary_entries() :: [glossary_entry()].
+
+-type tag() :: iolist().
+-type tag_list() :: [tag()].
+
+-type translation_options() :: #{
+    source_lang => language(),
+    split_sentences => boolean() | nonewlines,
+    preserve_formatting => boolean(),
+    tag_handling => xml,
+    non_splitting_tags => tag_list(),
+    splitting_tags => tag_list(),
+    ignore_tags => tag_list(),
+    outline_detection => boolean(),
+    formality => default | more | less,
+    glossary_id => glossary_id()
+}.
 
 %% API
 
 -export_types([
     language/0,
+
     glossary_id/0,
     glossary_name/0,
     glossary/0,
     glossary_entry/0,
-    glossary_entries/0
+    glossary_entries/0,
+
+    tag/0,
+    tag_list/0,
+    translation_options/0
 ]).
 
 -export([
@@ -66,7 +88,8 @@
 %%% API
 %%%===================================================================
 
--spec auth_key(AuthKey :: nonempty_list()) -> ok.
+-spec auth_key(AuthKey :: nonempty_list()) -> 
+    ok.
 auth_key(AuthKey) ->
     application:set_env(deeperl, auth_key, AuthKey).
 
@@ -74,15 +97,15 @@ auth_key(AuthKey) ->
 glossary_list() ->
     gen_server:call(?SERVER, {list_glossaries}).
 
--spec glossary_information(GlossaryId :: glossary_id()) -> {ok, glossary()} | {error, atom(), term()}.
+-spec glossary_information(GlossaryId :: glossary_id()) -> {ok, glossary()}.
 glossary_information(GlossaryId) ->
     gen_server:call(?SERVER, {glossary_information, GlossaryId}).
 
--spec glossary_entries(GlossaryId :: glossary_id()) -> {ok, glossary()} | {error, atom(), term()}.
+-spec glossary_entries(GlossaryId :: glossary_id()) -> {ok, glossary_entries()}.
 glossary_entries(GlossaryId) ->
     gen_server:call(?SERVER, {glossary_entries, GlossaryId}).
 
--spec glossary_delete(GlossaryId :: glossary_id()) -> ok | {error, atom(), term()}.
+-spec glossary_delete(GlossaryId :: glossary_id()) -> ok.
 glossary_delete(GlossaryId) ->
     gen_server:call(?SERVER, {delete_glossary, GlossaryId}).
 
@@ -91,22 +114,30 @@ glossary_delete(GlossaryId) ->
         SourceLang :: language(), 
         TargetLang :: language(), 
         Entries :: glossary_entries()
-    ) -> {ok, glossary()} | {error, atom(), term()}.
+    ) -> 
+        {ok, glossary()}.
 glossary_create(Name, SourceLang, TargetLang, Entries) ->
     gen_server:call(?SERVER, {create_glossary, Name, SourceLang, TargetLang, Entries}).
 
+-spec translate(TargetLang :: language(), Texts :: [iolist()]) -> 
+    {ok, [{DetectedLanguage :: language(), Text :: iolist()}]}.
 translate(TargetLang, Texts) ->
     translate(TargetLang, Texts, #{}).
 
+-spec translate(TargetLang :: language(), Texts :: [iolist()], Options :: translation_options()) -> 
+    {ok, [{DetectedLanguage :: language(), Text :: iolist()}]}.
 translate(TargetLang, Texts, #{} = Options) ->
     gen_server:call(?SERVER, {translate, TargetLang, Texts, Options}).
 
+-spec source_languages() -> {ok, [{Language :: language(), Name :: iolist()}]}.
 source_languages() ->
     gen_server:call(?SERVER, {source_languages}).
 
+-spec target_languages() -> {ok, [{Language :: language(), Name :: iolist(), SupportsFormality :: boolean()}]}.
 target_languages() ->
     gen_server:call(?SERVER, {target_languages}).
 
+-spec usage() -> {ok, {CharacterCount :: integer(), CharacterLimit :: integer()}}.
 usage() ->
     gen_server:call(?SERVER, {usage}).
 
@@ -191,5 +222,7 @@ terminate(_Reason, _State) ->
 code_change(_OldVsn, State, _Extra) ->
     {ok, State}.
 
+-spec auth_key() -> 
+    {ok, nonempty_list()} | undefined.
 auth_key() ->
     application:get_env(deeperl, auth_key).

@@ -1,7 +1,10 @@
 -module(deeperl_sup).
 -behaviour(supervisor).
 
--export([start_link/0, init/1]).
+-export([
+    start_link/0, 
+    init/1,
+]).
 
 -define(SERVER, ?MODULE).
 
@@ -15,4 +18,7 @@ init([]) ->
         restart => permanent,
         type => worker
     },
-    {ok, {{one_for_all, 1, 5}, [ChildSpec]}}.
+    {ok, {
+        {one_for_all, 1, 5}, 
+        [ChildSpec]
+    }}.
