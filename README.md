@@ -43,11 +43,17 @@ Changing the authentication key at runtime will take effect immediately.
 ### Translating Text
 > [Official API documentation](https://www.deepl.com/docs-api/translating-text/)
 
+```erlang
+3> % Simple translation of texts
+3> {ok, Translations} = deeperl:translate("de", ["Rien ne vas plus", <<"Game over">>]).
+{ok,[{"FR",<<"Nichts läuft richtig"/utf8>>},
+     {"EN",<<"Spiel vorbei">>}]}
 
-### Translating documents
-> [Official API documentation](https://www.deepl.com/docs-api/translating-documents/)
-
-Translating documents is not supported yet.
+4> % Translating texts with options
+4> {ok, Translations} = deeperl:translate("de", ["<b>Rien</b> ne vas plus", <<"Game over">>], #{tag_handling=>xml, formality=>less}).
+{ok,[{"FR",<<"<b>Nichts</b> läuft richtig"/utf8>>},
+     {"EN",<<"Spiel vorbei">>}]}
+```
 
 ### Managing glossaries
 > [Official API documentation](https://www.deepl.com/docs-api/managing-glossaries/)
@@ -56,12 +62,12 @@ Translating documents is not supported yet.
 > [Official API documentation](https://www.deepl.com/docs-api/managing-glossaries/creating-a-glossary/)
 
 ```erlang
-4> Entries = [{<<Entry1>>, <<"Translation1">>}, {<<Entry2>>, <<"Translation2">>}, {<<Entry3>>, <<"Translation3">>}].
+5> Entries = [{<<Entry1>>, <<"Translation1">>}, {<<Entry2>>, <<"Translation2">>}, {<<Entry3>>, <<"Translation3">>}].
 [{<<"Entry1">>,<<"Translation1">>},
  {<<"Entry2">>,<<"Translation2">>},
  {<<"Entry3">>,<<"Translation3">>}]
 
-5> {ok, Glossary} = deeperl:glossary_create(<<"Glossary Name">>, "en", "de", Entries).
+6> {ok, Glossary} = deeperl:glossary_create(<<"Glossary Name">>, "en", "de", Entries).
 {ok,#{creation_time => "2021-09-29T07:31:01.19704+00:00",
       entry_count => 3,
       id => "610a3145-be30-424c-8eeb-bb06a405c90e",
@@ -73,7 +79,7 @@ Translating documents is not supported yet.
 > [Official API documentation](https://www.deepl.com/docs-api/managing-glossaries/listing-glossaries/)
 
 ```erlang
-6> {ok, Glossaries} = deeperl:glossary_list().
+7> {ok, Glossaries} = deeperl:glossary_list().
 {ok,[#{creation_time => "2021-09-29T07:31:01.19704+00:00",
       entry_count => 3,
       id => "610a3145-be30-424c-8eeb-bb06a405c90e",
@@ -90,7 +96,7 @@ Translating documents is not supported yet.
 > [Official API documentation](https://www.deepl.com/docs-api/managing-glossaries/listing-glossary-information/)
 
 ```erlang
-7> {ok, Glossary} = deeperl:glossary_information("610a3145-be30-424c-8eeb-bb06a405c90e").
+8> {ok, Glossary} = deeperl:glossary_information("610a3145-be30-424c-8eeb-bb06a405c90e").
 {ok,#{creation_time => "2021-09-29T07:31:01.19704+00:00",
       entry_count => 3,
       id => "610a3145-be30-424c-8eeb-bb06a405c90e",
@@ -102,7 +108,7 @@ Translating documents is not supported yet.
 > [Official API documentation](https://www.deepl.com/docs-api/managing-glossaries/listing-entries-of-a-glossary/)
 
 ```erlang
-1> {ok, Entries} = deeperl:glossary_entries("610a3145-be30-424c-8eeb-bb06a405c90e").
+9> {ok, Entries} = deeperl:glossary_entries("610a3145-be30-424c-8eeb-bb06a405c90e").
 {ok,{<<"Entry1">>,<<"Translation1">>},
     {<<"Entry2">>,<<"Translation2">>},
     {<<"Entry3">>,<<"Translation3">>}]}
@@ -112,7 +118,7 @@ Translating documents is not supported yet.
 > [Official API documentation](https://www.deepl.com/docs-api/managing-glossaries/deleing-a-glossary/)
 
 ```erlang
-1> ok = deeperl:glossary_delete("610a3145-be30-424c-8eeb-bb06a405c90e").
+10> ok = deeperl:glossary_delete("610a3145-be30-424c-8eeb-bb06a405c90e").
 ok
 ```
 
@@ -123,7 +129,7 @@ ok
 
 ##### Supported source languages
 ```erlang
-1> {ok, SourceLanguages} = deeperl:source_languages().
+11> {ok, SourceLanguages} = deeperl:source_languages().
 {ok,[{"BG","Bulgarian"},
      {"CS","Czech"},
      {"DA","Danish"},
@@ -133,7 +139,7 @@ ok
 
 ##### Supported target languages
 ```erlang
-1> {ok, TargetLanguages} = deeperl:target_languages().
+12> {ok, TargetLanguages} = deeperl:target_languages().
 {ok,[{"BG","Bulgarian",false},
      {"CS","Czech",false},
      {"DA","Danish",false},
@@ -145,7 +151,7 @@ ok
 > [Official API documentation](https://www.deepl.com/docs-api/other-functions/monitoring-usage/)
 
 ```erlang
-2> {ok, {CharacterCount, CharacterLimit}} = deeperl:usage().
+13> {ok, {CharacterCount, CharacterLimit}} = deeperl:usage().
 {ok,{28788,50000000}}
 ```
 

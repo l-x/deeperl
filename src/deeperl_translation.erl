@@ -88,10 +88,10 @@ translate(TargetLanguage, Texts, #{} = TranslationOptions) ->
         fun({200, _}, ResponseBody) ->
             Response = jiffy:decode(ResponseBody, [return_maps]),
 
-            [{
+            {ok, [{
                 unicode:characters_to_list(maps:get(<<"detected_source_language">>, Map)),
                 maps:get(<<"text">>, Map)
-            } || Map <- maps:get(<<"translations">>, Response)]
+            } || Map <- maps:get(<<"translations">>, Response)]}
         end
     }.
 
@@ -124,7 +124,7 @@ translation_option(non_splitting_tags, TagList) ->
 translation_option(splitting_tags, TagList) -> 
     {"splitting_tags", string:join(TagList, ",")};
 
-translation_option(ingnore_tags, TagList) -> 
+translation_option(ignore_tags, TagList) -> 
     {"ignore_tags", string:join(TagList, ",")};
 
 translation_option(outline_detection, OutlineDetection) -> 
