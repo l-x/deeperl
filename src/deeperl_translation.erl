@@ -22,10 +22,10 @@ source_languages() ->
         },
         fun({200, _}, ResponseBody) ->
             Response = jiffy:decode(ResponseBody, [return_maps]),
-            [{
+            {ok, [{
                 unicode:characters_to_list(maps:get(<<"language">>, Map)),
                 unicode:characters_to_list(maps:get(<<"name">>, Map))
-            } || Map <- Response]
+            } || Map <- Response]}
         end
     }.
 
@@ -42,11 +42,11 @@ target_languages() ->
         },
         fun({200, _}, ResponseBody) ->
             Response = jiffy:decode(ResponseBody, [return_maps]),
-            [{
+            {ok, [{
                 unicode:characters_to_list(maps:get(<<"language">>, Map)),
                 unicode:characters_to_list(maps:get(<<"name">>, Map)),
                 maps:get(<<"supports_formality">>, Map)
-            } || Map <- Response]
+            } || Map <- Response]}
         end
     }.
 
