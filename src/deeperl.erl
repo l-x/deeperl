@@ -41,7 +41,9 @@
 
 -export([
     start_link/0,
+
     auth_key/1,
+    httpc_profile/1,
 
     glossary_list/0,
     glossary_information/1,
@@ -76,11 +78,15 @@
 %%% API
 %%%===================================================================
 
-%% @doc Set the DeepL authentication key at runtime
--spec auth_key(AuthKey :: nonempty_string()) ->
-    ok.
+%% @doc Set the DeepL authentication key
+-spec auth_key(AuthKey :: nonempty_string()) -> ok.
 auth_key(AuthKey) ->
-    application:set_env(deeperl, auth_key, AuthKey).
+    application:set_env(auth_key, AuthKey).
+
+%% @doc Set the inets httpc profile to be used
+-spec httpc_profile(Profile :: pid() | atom()) -> ok.
+httpc_profile(Profile) ->
+    application:set_env(httpc_profile, Profile).
 
 %% @doc List all glossaries
 -spec glossary_list() -> {ok, [glossary()]}.
@@ -150,16 +156,16 @@ init(_) ->
 
 %% @private
 handle_call({list_glossaries}, _From, State) ->
-    {reply, deeperl_client:call(auth_key(), deeperl_glossary:list()), State};
+    {reply, deeperl_client:call(config(), deeperl_glossary:list()), State};
 
 handle_call({glossary_information, GlossaryId}, _From, State) ->
-    {reply, deeperl_client:call(auth_key(), deeperl_glossary:information(GlossaryId)), State};
+    {reply, deeperl_client:call(config(), deeperl_glossary:information(GlossaryId)), State};
 
 handle_call({glossary_entries, GlossaryId}, _From, State) ->
-    {reply, deeperl_client:call(auth_key(), deeperl_glossary:entries(GlossaryId)), State};
+    {reply, deeperl_client:call(config(), deeperl_glossary:entries(GlossaryId)), State};
 
 handle_call({delete_glossary, GlossaryId}, _From, State) ->
-    {reply, deeperl_client:call(auth_key(), deeperl_glossary:delete(GlossaryId)), State};
+    {reply, deeperl_client:call(config(), deeperl_glossary:delete(GlossaryId)), State};
 
 handle_call({create_glossary, Name, SourceLang, TargetLang, Entries}, _From, State) ->
     FunctionConfig = deeperl_glossary:create(
@@ -169,19 +175,19 @@ handle_call({create_glossary, Name, SourceLang, TargetLang, Entries}, _From, Sta
         Entries
     ),
 
-    {reply, deeperl_client:call(auth_key(), FunctionConfig), State};
+    {reply, deeperl_client:call(config(), FunctionConfig), State};
 
 handle_call({translate, TargetLang, Texts, #{} = Options}, _From, State) ->
-    {reply, deeperl_client:call(auth_key(), deeperl_translation:translate(TargetLang, Texts, Options)), State};
+    {reply, deeperl_client:call(config(), deeperl_translation:translate(TargetLang, Texts, Options)), State};
 
 handle_call({source_languages}, _From, State) ->
-    {reply, deeperl_client:call(auth_key(), deeperl_translation:source_languages()), State};
+    {reply, deeperl_client:call(config(), deeperl_translation:source_languages()), State};
 
 handle_call({target_languages}, _From, State) ->
-    {reply, deeperl_client:call(auth_key(), deeperl_translation:target_languages()), State};
+    {reply, deeperl_client:call(config(), deeperl_translation:target_languages()), State};
 
 handle_call({usage}, _From, State) ->
-    {reply, deeperl_client:call(auth_key(), deeperl_translation:usage()), State};
+    {reply, deeperl_client:call(config(), deeperl_translation:usage()), State};
 
 handle_call(_Request, _From, State) ->
     {reply, ok, State}.
@@ -202,9 +208,8 @@ terminate(_Reason, _State) ->
 code_change(_OldVsn, State, _Extra) ->
     {ok, State}.
 
--spec auth_key() -> nonempty_string() | undefined.
-auth_key() ->
-    case application:get_env(auth_key) of
-        {ok, AuthKey} -> AuthKey;
-        undefined -> undefined
-    end.
+config() ->
+    {
+        application:get_env(?MODULE, httpc_profile, default),
+        application:get_env(?MODULE, auth_key, undefined)
+    }.

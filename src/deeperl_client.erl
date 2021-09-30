@@ -5,7 +5,7 @@
     call/2
 ]).
 
-call(AuthKey, {{Method, RequestData}, ResultFun}) ->
+call({HttpcProfile, AuthKey}, {{Method, RequestData}, ResultFun}) ->
     Request = case RequestData of
                   {Route, Headers, ContentType, Body} ->
                       {url(AuthKey, Route), Headers ++ headers(AuthKey), ContentType, Body};
@@ -14,7 +14,7 @@ call(AuthKey, {{Method, RequestData}, ResultFun}) ->
               end,
 
 
-    {ok, Response} = httpc:request(Method, Request, [], []),
+    {ok, Response} = httpc:request(Method, Request, [], [], HttpcProfile),
 
     {{_, StatusCode, StatusMessage}, _, ResponseBody} = Response,
 

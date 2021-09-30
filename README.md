@@ -48,7 +48,7 @@ Or simply add deeperl to the applications property of your .app files.
 ### Authentication
 > [Official API documentation](https://www.deepl.com/docs-api/accessing-the-api/authentication/)
 
-To use the DeepL API an authentication key is required. This key can be set as application environment property:
+To use the DeepL API an authentication key is required. This key is stored in the application environment and can therefore be set in your application config:
 
 `yourapp.config`
 ```erlang
@@ -59,15 +59,32 @@ To use the DeepL API an authentication key is required. This key can be set as a
 ].
 ```
 
-For setting or changing the authenticatin key at runtime is possible too:
-
+The authorization key can also be set at runtime by calling
 ```erlang
 2> ok = deeperl:auth_key("your DeepL auth_key here").
 ok.
 ```
-Changing the authentication key this way will take effect immediately.
 
 **Note**: deeperl recognizes which API endpoint (api-free.deepl.com or api.deepl.com) to use based on the token. 
+
+### Configuring the http client
+
+deeperl uses the [builtin HTTP client](https://erlang.org/doc/apps/inets/http_client.html) to perform all HTTP requests.
+
+By default deeperl uses the `default` profile for `httpc`. The used profile is stored in the application environment under the key `httpc_profile`:
+`yourapp.config`
+```erlang
+[
+  {deeperl, [
+    {httpc_profile, profile_name}
+  ]}
+].
+```
+The httpc profile can also be set at runtime by calling
+```erlang
+2> ok = deeperl:httpc_profile(pid(0, 123, 0)).
+ok.
+```
 ### Translating Text
 > [Official API documentation](https://www.deepl.com/docs-api/translating-text/)
 
