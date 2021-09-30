@@ -34,8 +34,9 @@ entries(GlossaryId) ->
             {"/v2/glossaries/" ++ GlossaryId ++ "/entries", []}
         },
         fun({200, _}, ResponseBody) ->
-            Result = [list_to_tuple(string:split(L, "\t")) || L <- string:split(list_to_binary(ResponseBody), "\n")],
-            {ok, Result}
+            Lines = string:split(ResponseBody, "\n", all),
+
+            {ok, [list_to_tuple(string:split(Line, "\t", all)) || Line <- Lines]}
         end
     }.
 
