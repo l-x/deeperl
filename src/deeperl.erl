@@ -1,6 +1,8 @@
 -module(deeperl).
 -behaviour(gen_server).
 
+-type error() :: {error, Description :: atom(), Info :: term()}.
+
 -type nonempty_str_or_binary() :: nonempty_string() | nonempty_binary().
 
 -type language() :: nonempty_string().
@@ -89,22 +91,22 @@ httpc_profile(Profile) ->
     application:set_env(?MODULE, httpc_profile, Profile).
 
 %% @doc List all glossaries
--spec glossary_list() -> {ok, [glossary()]}.
+-spec glossary_list() -> {ok, [glossary()]} | error().
 glossary_list() ->
     gen_server:call(?SERVER, {list_glossaries}).
 
 %% @doc Get detailed information for a specific glossary
--spec glossary_information(GlossaryId :: glossary_id()) -> {ok, glossary()}.
+-spec glossary_information(GlossaryId :: glossary_id()) -> {ok, glossary()} | error().
 glossary_information(GlossaryId) ->
     gen_server:call(?SERVER, {glossary_information, GlossaryId}).
 
 %% @doc Get the entries for a specific glossary
--spec glossary_entries(GlossaryId :: glossary_id()) -> {ok, glossary_entries()}.
+-spec glossary_entries(GlossaryId :: glossary_id()) -> {ok, glossary_entries()} | error().
 glossary_entries(GlossaryId) ->
     gen_server:call(?SERVER, {glossary_entries, GlossaryId}).
 
 %% @doc Delete a glossary
--spec glossary_delete(GlossaryId :: glossary_id()) -> ok.
+-spec glossary_delete(GlossaryId :: glossary_id()) -> ok | error().
 glossary_delete(GlossaryId) ->
     gen_server:call(?SERVER, {delete_glossary, GlossaryId}).
 
@@ -115,34 +117,34 @@ glossary_delete(GlossaryId) ->
     TargetLang :: language(),
     Entries :: glossary_entries()
 ) ->
-    {ok, glossary()}.
+    {ok, glossary()} | error().
 glossary_create(Name, SourceLang, TargetLang, Entries) ->
     gen_server:call(?SERVER, {create_glossary, Name, SourceLang, TargetLang, Entries}).
 
 %% @doc Translate a list of texts
 -spec translate(TargetLang :: language(), Texts :: [nonempty_str_or_binary()]) ->
-    {ok, [{DetectedLanguage :: language(), Text :: nonempty_str_or_binary()}]}.
+    {ok, [{DetectedLanguage :: language(), Text :: nonempty_str_or_binary()}]} | error().
 translate(TargetLang, Texts) ->
     translate(TargetLang, Texts, #{}).
 
 %% @doc Translate a list of texts with special translation options
 -spec translate(TargetLang :: language(), Texts :: [nonempty_str_or_binary()], Options :: translation_options()) ->
-    {ok, [{DetectedLanguage :: language(), Text :: nonempty_str_or_binary()}]}.
+    {ok, [{DetectedLanguage :: language(), Text :: nonempty_str_or_binary()}]} | error().
 translate(TargetLang, Texts, #{} = Options) ->
     gen_server:call(?SERVER, {translate, TargetLang, Texts, Options}).
 
 %% @doc Get the list of languages DeepL can translate from
--spec source_languages() -> {ok, [{Language :: language(), Name :: nonempty_str_or_binary()}]}.
+-spec source_languages() -> {ok, [{Language :: language(), Name :: nonempty_str_or_binary()}]} | error().
 source_languages() ->
     gen_server:call(?SERVER, {source_languages}).
 
 %% @doc Get the list of languages DeepL can translate to
--spec target_languages() -> {ok, [{Language :: language(), Name :: nonempty_str_or_binary(), SupportsFormality :: boolean()}]}.
+-spec target_languages() -> {ok, [{Language :: language(), Name :: nonempty_str_or_binary(), SupportsFormality :: boolean()}]} | error().
 target_languages() ->
     gen_server:call(?SERVER, {target_languages}).
 
 %% @doc See the usage statistics for you account
--spec usage() -> {ok, {CharacterCount :: integer(), CharacterLimit :: integer()}}.
+-spec usage() -> {ok, {CharacterCount :: integer(), CharacterLimit :: integer()}} | error().
 usage() ->
     gen_server:call(?SERVER, {usage}).
 
