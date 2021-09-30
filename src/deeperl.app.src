@@ -1,12 +1,24 @@
-{application,deeperl,
-             [{description,"Erlang client app for the DeepL API"},
-              {vsn,"0.5.0"},
-              {registered,[deeperl]},
-              {mod,{deeperl_app,[]}},
-              {applications,[kernel,stdlib,gun]},
-              {env,[]},
-              {modules,[deeperl,deeperl_app,deeperl_languages,deeperl_sup,
-                        deeperl_translate,deeperl_usage,
-                        gen_deeperl_procedure]},
-              {licenses,["Apache 2.0"]},
-              {links,[{"GitHub","https://github.com/l-x/deeperl"}]}]}.
+{application, deeperl, [
+  {description, "An Erlang/OTP application for the official DeepL  API"},
+  {vsn, "0.6.0"},
+  {registered, [deeperl]},
+  {mod, {deeperl_app, []}},
+  {applications, [
+    kernel,
+    stdlib,
+    inets
+  ]},
+  {env, []},
+  {modules, [
+    deeperl,
+    deeperl_app,
+    deeperl_sup,
+    deeperl_client,
+    deeperl_glossary,
+    deeperl_translation
+  ]},
+  {licenses, ["Apache 2.0"]},
+  {links, [
+    {"Codeberg", "https://codeberg.org/l-x/deeperl"}
+  ]}
+]}.
