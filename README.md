@@ -13,7 +13,7 @@ An Erlang/OTP client application for the official [DeepL  API] Version 2.
 ```erlang
 {deps, [
   % Latest version (git):
-  {deeperl, {git, "https://codeberg.org/l-x/deeperl.git", {branch, "develop"}}},
+  {deeperl, {git, "https://codeberg.org/l-x/deeperl.git", {branch, "main"}}},
   
   % Specific version (git):
   {deeperl, {git, "https://codeberg.org/l-x/deeperl.git", {tag, "0.6.0"}}},
