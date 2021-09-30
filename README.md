@@ -173,13 +173,16 @@ ok
      {"DA","Danish",false},
      {"DE","German",true},
      ...
+
+13> {Language, Name, SupportsFormality} = hd(TargetLanguages).
+{"BG","Bulgarian",false}
 ```
 
 #### Monitoring usage
 > [Official API documentation](https://www.deepl.com/docs-api/other-functions/monitoring-usage/)
 
 ```erlang
-13> {ok, {CharacterCount, CharacterLimit}} = deeperl:usage().
+14> {ok, {CharacterCount, CharacterLimit}} = deeperl:usage().
 {ok,{28788,50000000}}
 ```
 
