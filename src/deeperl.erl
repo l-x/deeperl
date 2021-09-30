@@ -81,12 +81,12 @@
 %% @doc Set the DeepL authentication key
 -spec auth_key(AuthKey :: nonempty_string()) -> ok.
 auth_key(AuthKey) ->
-    application:set_env(auth_key, AuthKey).
+    application:set_env(?MODULE, auth_key, AuthKey).
 
 %% @doc Set the inets httpc profile to be used
 -spec httpc_profile(Profile :: pid() | atom()) -> ok.
 httpc_profile(Profile) ->
-    application:set_env(httpc_profile, Profile).
+    application:set_env(?MODULE, httpc_profile, Profile).
 
 %% @doc List all glossaries
 -spec glossary_list() -> {ok, [glossary()]}.
