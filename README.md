@@ -7,24 +7,7 @@
 
 An Erlang/OTP client application for the official [DeepL  API] Version 2.
 
-## TOC
-1. [Installation](#install)
-2. [Starting deeperl](#starting)
-3. [Authentication](#authentication)
-4. [Configuring the http client](#httpclient)
-5. [Translating Text](#translating)
-6. [Listing supported languages](#languages)
-    1. [Supported source languages](#source_languages)
-    2. [Supported target languages](#target_languages)
-7. Monitoring usage [](#monitoring)
-8. [Managing glossaries](#glossaries)
-    1. [Creating a glossary](#glossary_create)
-    2. [Listing glossary information](#glossary_information)
-    3. [Listing entries of a glossary](#glossary_entries)
-    4. [Listing glossaries](#glossary_list)
-    5. [Deleting a glossary](#glossary_delete)
-
-## Installation [](#install)
+## Installation
 
 ### Rebar3
 ```erlang
@@ -48,7 +31,7 @@ See https://erlang.mk/guide/deps.html
 
 ## Usage
 
-### Starting deeperl [](#starting)
+### Starting deeperl
 
 deeperl is an Erlang/OTP application. Before using any of the functions you will have to start it.
 
@@ -58,7 +41,7 @@ $ rebar3 shell
 ```
 Or simply add deeperl to the applications property of your .app files.
 
-### Authentication [](#authentication)
+### Authentication
 > [Official API documentation](https://www.deepl.com/docs-api/accessing-the-api/authentication/)
 
 To use the DeepL API an authentication key is required. This key is stored in the application environment and can therefore be set in your application config:
@@ -80,7 +63,7 @@ The authorization key can also be set at runtime by calling
 
 **Note**: deeperl recognizes which API endpoint (api-free.deepl.com or api.deepl.com) to use based on the token.
 
-### Configuring the http client [](#httpclient)
+### Configuring the http client
 
 deeperl uses the [builtin HTTP client](https://erlang.org/doc/apps/inets/http_client.html) to perform all HTTP requests.
 
@@ -103,7 +86,7 @@ The httpc profile can also be set at runtime by calling
 ok
 ```
 
-### Translating Text [](#translating)
+### Translating Text
 > [Official API documentation](https://www.deepl.com/docs-api/translating-text/)
 
 ```erlang
@@ -115,10 +98,10 @@ ok
 {ok,[{"FR",<<"<b>Nichts</b> läuft richtig"/utf8>>},
      {"EN",<<"Spiel vorbei">>}]}
 ```
-### Listing supported languages [](#languages)
+### Listing supported languages
 > [Official API documentation](https://www.deepl.com/docs-api/other-functions/listing-supported-languages/)
 
-#### Supported source languages [](#source_languages)
+#### Supported source languages
 ```erlang
 7> {ok, SourceLanguages} = deeperl:source_languages().
 {ok,[{"BG","Bulgarian"},
@@ -131,7 +114,7 @@ ok
 {"BG","Bulgarian"}
 ```
 
-#### Supported target languages [](#target_languages)
+#### Supported target languages
 ```erlang
 9> {ok, TargetLanguages} = deeperl:target_languages().
 {ok,[{"BG","Bulgarian",false},
@@ -144,15 +127,15 @@ ok
 {"BG","Bulgarian",false}
 ```
 
-### Monitoring usage [](#monitoring)
+### Monitoring usage
 > [Official API documentation](https://www.deepl.com/docs-api/other-functions/monitoring-usage/)
 ```erlang
 11> {ok, {CharacterCount, CharacterLimit}} = deeperl:usage().
 {ok,{28788,50000000}}
 ```
 
-### Managing glossaries [](#glossaries)
-#### Creating a glossary [](#glossary_create)
+### Managing glossaries
+#### Creating a glossary
 > [Official API documentation](https://www.deepl.com/docs-api/managing-glossaries/creating-a-glossary/)
 
 ```erlang
@@ -172,7 +155,7 @@ ok
 "610a3145-be30-424c-8eeb-bb06a405c90e"
 ```
 
-#### Listing glossary information [](#glossary_information)
+#### Listing glossary information
 > [Official API documentation](https://www.deepl.com/docs-api/managing-glossaries/listing-glossary-information/)
 
 ```erlang
@@ -184,7 +167,7 @@ ok
       target_lang => "de"}}
 ```
 
-#### Listing entries of a glossary [](#glossary_entries)
+#### Listing entries of a glossary
 > [Official API documentation](https://www.deepl.com/docs-api/managing-glossaries/listing-entries-of-a-glossary/)
 
 ```erlang
@@ -194,7 +177,7 @@ ok
      {"Entry3","Translation3"}]}
 ```
 
-#### Listing glossaries [](#glossary_list)
+#### Listing glossaries
 > [Official API documentation](https://www.deepl.com/docs-api/managing-glossaries/listing-glossaries/)
 
 ```erlang
@@ -211,7 +194,7 @@ ok
 ...
 ```
 
-#### Deleting a glossary [](#glossary_delete)
+#### Deleting a glossary
 > [Official API documentation](https://www.deepl.com/docs-api/managing-glossaries/deleing-a-glossary/)
 
 ```erlang
