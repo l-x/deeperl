@@ -19,6 +19,6 @@
   ]},
   {licenses, ["Apache 2.0"]},
   {links, [
-    {"Codeberg.org", "https://codeberg.org/l-x/deeperl"}
+    {"Codeberg", "https://codeberg.org/l-x/deeperl"}
   ]}
 ]}.

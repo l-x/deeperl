@@ -1,16 +1,33 @@
 [![Hex pm](https://img.shields.io/hexpm/l/deeperl.svg?style=flat)](https://hex.pm/packages/deeperl)
 [![Hex pm](https://img.shields.io/hexpm/v/deeperl.svg?style=flat)](https://hex.pm/packages/deeperl)
 
+**WORK IN PROGRESS** use at your own risk!
 
 # deeperl
 
 An Erlang/OTP client application for the official [DeepL  API] Version 2.
 
-**HIGHLY EXPERIMENTAL** and work in progress atm, so use at your own risk.
-
 ## Installation
 
-The preferred way of installing deeperl is via [hex].
+### Rebar3 
+```erlang
+{deps, [
+  % Latest version (git):
+  {deeperl, {git, "https://codeberg.org/l-x/deeperl.git", {branch, "develop"}}},
+  
+  % Specific version (git):
+  {deeperl, {git, "https://codeberg.org/l-x/deeperl.git", {tag, "0.5.0"}}},
+
+  % Latest version (hex):
+  deeperl,
+
+  % Specific version (hex):
+  {deeperl, "0.5.0"}
+]}.
+``` 
+
+### erlang.mk
+See https://erlang.mk/guide/deps.html
 
 ## Usage
 
@@ -26,18 +43,29 @@ $ rebar3 shell
 1> application:ensure_all_started(deeperl).
 {ok,[inets,deeperl]}
 ```
-Or add deeperl to the applications property of your .app files.
+Or simply add deeperl to the applications property of your .app files.
 
 ### Authentication
 > [Official API documentation](https://www.deepl.com/docs-api/accessing-the-api/authentication/)
 
-The DeepL authentication key can be set in the application environment using the `auth_key` setting or at runtime: 
+To use the DeepL API an authentication key is required. This key can be set as application environment property:
+
+`yourapp.config`
+```erlang
+[
+  {deeperl, [
+    {auth_key, "your DeepL auth_key here"}
+  ]}
+].
+```
+
+For setting or changing the authenticatin key at runtime is possible too:
 
 ```erlang
 2> ok = deeperl:auth_key("your DeepL auth_key here").
 ok.
 ```
-Changing the authentication key at runtime will take effect immediately.
+Changing the authentication key this way will take effect immediately.
 
 **Note**: deeperl recognizes which API endpoint (api-free.deepl.com or api.deepl.com) to use based on the token. 
 ### Translating Text
