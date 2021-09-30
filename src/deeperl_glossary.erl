@@ -1,5 +1,4 @@
 %%% @private
-
 -module(deeperl_glossary).
 
 -export([

@@ -39,21 +39,6 @@
 
 %% API
 
--export_types([
-    string/0,
-    language/0,
-
-    glossary_id/0,
-    glossary_name/0,
-    glossary/0,
-    glossary_entry/0,
-    glossary_entries/0,
-
-    tag/0,
-    tag_list/0,
-    translation_options/0
-]).
-
 -export([
     start_link/0,
     auth_key/1,
@@ -91,27 +76,33 @@
 %%% API
 %%%===================================================================
 
+%% @doc Set the DeepL authentication key at runtime
 -spec auth_key(AuthKey :: nonempty_string()) ->
     ok.
 auth_key(AuthKey) ->
     application:set_env(deeperl, auth_key, AuthKey).
 
+%% @doc List all glossaries
 -spec glossary_list() -> {ok, [glossary()]}.
 glossary_list() ->
     gen_server:call(?SERVER, {list_glossaries}).
 
+%% @doc Get detailed information for a specific glossary
 -spec glossary_information(GlossaryId :: glossary_id()) -> {ok, glossary()}.
 glossary_information(GlossaryId) ->
     gen_server:call(?SERVER, {glossary_information, GlossaryId}).
 
+%% @doc Get the entries for a specific glossary
 -spec glossary_entries(GlossaryId :: glossary_id()) -> {ok, glossary_entries()}.
 glossary_entries(GlossaryId) ->
     gen_server:call(?SERVER, {glossary_entries, GlossaryId}).
 
+%% @doc Delete a glossary
 -spec glossary_delete(GlossaryId :: glossary_id()) -> ok.
 glossary_delete(GlossaryId) ->
     gen_server:call(?SERVER, {delete_glossary, GlossaryId}).
 
+%% @doc Create a glossary
 -spec glossary_create(
     Name :: glossary_name(),
     SourceLang :: language(),
@@ -122,24 +113,29 @@ glossary_delete(GlossaryId) ->
 glossary_create(Name, SourceLang, TargetLang, Entries) ->
     gen_server:call(?SERVER, {create_glossary, Name, SourceLang, TargetLang, Entries}).
 
+%% @doc Translate a list of texts
 -spec translate(TargetLang :: language(), Texts :: [nonempty_str_or_binary()]) ->
     {ok, [{DetectedLanguage :: language(), Text :: nonempty_str_or_binary()}]}.
 translate(TargetLang, Texts) ->
     translate(TargetLang, Texts, #{}).
 
+%% @doc Translate a list of texts with special translation options
 -spec translate(TargetLang :: language(), Texts :: [nonempty_str_or_binary()], Options :: translation_options()) ->
     {ok, [{DetectedLanguage :: language(), Text :: nonempty_str_or_binary()}]}.
 translate(TargetLang, Texts, #{} = Options) ->
     gen_server:call(?SERVER, {translate, TargetLang, Texts, Options}).
 
+%% @doc Get the list of languages DeepL can translate from
 -spec source_languages() -> {ok, [{Language :: language(), Name :: nonempty_str_or_binary()}]}.
 source_languages() ->
     gen_server:call(?SERVER, {source_languages}).
 
+%% @doc Get the list of languages DeepL can translate to
 -spec target_languages() -> {ok, [{Language :: language(), Name :: nonempty_str_or_binary(), SupportsFormality :: boolean()}]}.
 target_languages() ->
     gen_server:call(?SERVER, {target_languages}).
 
+%% @doc See the usage statistics for you account
 -spec usage() -> {ok, {CharacterCount :: integer(), CharacterLimit :: integer()}}.
 usage() ->
     gen_server:call(?SERVER, {usage}).
@@ -175,7 +171,6 @@ handle_call({create_glossary, Name, SourceLang, TargetLang, Entries}, _From, Sta
 
     {reply, deeperl_client:call(auth_key(), FunctionConfig), State};
 
-
 handle_call({translate, TargetLang, Texts, #{} = Options}, _From, State) ->
     {reply, deeperl_client:call(auth_key(), deeperl_translation:translate(TargetLang, Texts, Options)), State};
 
@@ -188,7 +183,6 @@ handle_call({target_languages}, _From, State) ->
 handle_call({usage}, _From, State) ->
     {reply, deeperl_client:call(auth_key(), deeperl_translation:usage()), State};
 
-%% @private
 handle_call(_Request, _From, State) ->
     {reply, ok, State}.
 

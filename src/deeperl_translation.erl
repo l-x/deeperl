@@ -1,3 +1,4 @@
+%% @private
 -module(deeperl_translation).
 
 -export([

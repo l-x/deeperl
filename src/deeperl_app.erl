@@ -1,3 +1,4 @@
+%% @private
 -module(deeperl_app).
 
 -behaviour(application).
