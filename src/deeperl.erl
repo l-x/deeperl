@@ -8,12 +8,12 @@
 -type glossary_name() :: iolist().
 
 -type glossary() :: #{
-glossary_id => glossary_id(),
-name => glossary_name(),
-source_lang => language(),
-target_lang => language(),
-creation_time => nonempty_list(),
-entry_count => integer()
+    glossary_id => glossary_id(),
+    name => glossary_name(),
+    source_lang => language(),
+    target_lang => language(),
+    creation_time => nonempty_list(),
+    entry_count => integer()
 }.
 
 -type glossary_entry() :: {iolist(), iolist()}.
@@ -23,16 +23,16 @@ entry_count => integer()
 -type tag_list() :: [tag()].
 
 -type translation_options() :: #{
-source_lang => language(),
-split_sentences => boolean() | nonewlines,
-preserve_formatting => boolean(),
-tag_handling => xml,
-non_splitting_tags => tag_list(),
-splitting_tags => tag_list(),
-ignore_tags => tag_list(),
-outline_detection => boolean(),
-formality => default | more | less,
-glossary_id => glossary_id()
+    source_lang => language(),
+    split_sentences => boolean() | nonewlines,
+    preserve_formatting => boolean(),
+    tag_handling => xml,
+    non_splitting_tags => tag_list(),
+    splitting_tags => tag_list(),
+    ignore_tags => tag_list(),
+    outline_detection => boolean(),
+    formality => default | more | less,
+    glossary_id => glossary_id()
 }.
 
 %% API
@@ -82,7 +82,9 @@ glossary_id => glossary_id()
 
 -define(SERVER, ?MODULE).
 
--record(state, {}).
+-record(state, {
+    auth_key = undefined :: undefined|nonempty_string()
+}).
 
 %%%===================================================================
 %%% API
@@ -91,7 +93,7 @@ glossary_id => glossary_id()
 -spec auth_key(AuthKey :: nonempty_list()) ->
     ok.
 auth_key(AuthKey) ->
-    application:set_env(deeperl, auth_key, AuthKey).
+    gen_server:call(?SERVER, {auth_key, AuthKey}).
 
 -spec glossary_list() -> {ok, [glossary()]}.
 glossary_list() ->
@@ -147,31 +149,30 @@ start_link() ->
 
 %% @private
 init(_) ->
-    {ok, #state{}}.
+    AuthKey = case application:get_env(?MODULE, auth_key) of
+                  {ok, Value} -> Value;
+                  undefined -> undefined
+              end,
+
+    {ok, #state{auth_key = AuthKey}}.
 
 %% @private
-handle_call({list_glossaries}, _From, State) ->
-    {ok, AuthKey} = auth_key(),
+handle_call({auth_key, AuthKey}, _From, State) ->
+    {reply, ok, State#state{auth_key = AuthKey}};
 
-    {reply, deeperl_client:call(AuthKey, deeperl_glossary:list()), State};
+handle_call({list_glossaries}, _From, State) ->
+    {reply, deeperl_client:call(State#state.auth_key, deeperl_glossary:list()), State};
 
 handle_call({glossary_information, GlossaryId}, _From, State) ->
-    {ok, AuthKey} = auth_key(),
-
-    {reply, deeperl_client:call(AuthKey, deeperl_glossary:information(GlossaryId)), State};
+    {reply, deeperl_client:call(State#state.auth_key, deeperl_glossary:information(GlossaryId)), State};
 
 handle_call({glossary_entries, GlossaryId}, _From, State) ->
-    {ok, AuthKey} = auth_key(),
-
-    {reply, deeperl_client:call(AuthKey, deeperl_glossary:entries(GlossaryId)), State};
+    {reply, deeperl_client:call(State#state.auth_key, deeperl_glossary:entries(GlossaryId)), State};
 
 handle_call({delete_glossary, GlossaryId}, _From, State) ->
-    {ok, AuthKey} = auth_key(),
-
-    {reply, deeperl_client:call(AuthKey, deeperl_glossary:delete(GlossaryId)), State};
+    {reply, deeperl_client:call(State#state.auth_key, deeperl_glossary:delete(GlossaryId)), State};
 
 handle_call({create_glossary, Name, SourceLang, TargetLang, Entries}, _From, State) ->
-    {ok, AuthKey} = auth_key(),
     FunctionConfig = deeperl_glossary:create(
         Name,
         SourceLang,
@@ -179,28 +180,20 @@ handle_call({create_glossary, Name, SourceLang, TargetLang, Entries}, _From, Sta
         Entries
     ),
 
-    {reply, deeperl_client:call(AuthKey, FunctionConfig), State};
+    {reply, deeperl_client:call(State#state.auth_key, FunctionConfig), State};
 
 
 handle_call({translate, TargetLang, Texts, #{} = Options}, _From, State) ->
-    {ok, AuthKey} = auth_key(),
-
-    {reply, deeperl_client:call(AuthKey, deeperl_translation:translate(TargetLang, Texts, Options)), State};
+    {reply, deeperl_client:call(State#state.auth_key, deeperl_translation:translate(TargetLang, Texts, Options)), State};
 
 handle_call({source_languages}, _From, State) ->
-    {ok, AuthKey} = auth_key(),
-
-    {reply, deeperl_client:call(AuthKey, deeperl_translation:source_languages()), State};
+    {reply, deeperl_client:call(State#state.auth_key, deeperl_translation:source_languages()), State};
 
 handle_call({target_languages}, _From, State) ->
-    {ok, AuthKey} = auth_key(),
-
-    {reply, deeperl_client:call(AuthKey, deeperl_translation:target_languages()), State};
+    {reply, deeperl_client:call(State#state.auth_key, deeperl_translation:target_languages()), State};
 
 handle_call({usage}, _From, State) ->
-    {ok, AuthKey} = auth_key(),
-
-    {reply, deeperl_client:call(AuthKey, deeperl_translation:usage()), State};
+    {reply, deeperl_client:call(State#state.auth_key, deeperl_translation:usage()), State};
 
 %% @private
 handle_call(_Request, _From, State) ->
@@ -221,8 +214,3 @@ terminate(_Reason, _State) ->
 %% @private
 code_change(_OldVsn, State, _Extra) ->
     {ok, State}.
-
--spec auth_key() ->
-    {ok, nonempty_list()} | undefined.
-auth_key() ->
-    application:get_env(deeperl, auth_key).
