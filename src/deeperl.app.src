@@ -5,7 +5,7 @@
     {mod, {deeperl_app, []}},
     {applications, [kernel, stdlib, inets]},
     {env, [
-      {auth_key, undefined},
+      {auth_key, ""},
       {httpc_profile, default}
     ]},
     {modules, [
