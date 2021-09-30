@@ -2,7 +2,7 @@
 -behaviour(supervisor).
 
 -export([
-    start_link/0, 
+    start_link/0,
     init/1
 ]).
 
@@ -19,6 +19,6 @@ init([]) ->
         type => worker
     },
     {ok, {
-        {one_for_all, 1, 5}, 
+        {one_for_all, 1, 5},
         [ChildSpec]
     }}.

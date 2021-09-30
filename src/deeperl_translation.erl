@@ -95,7 +95,7 @@ translate(TargetLanguage, Texts, #{} = TranslationOptions) ->
         end
     }.
 
-translation_option(source_lang, SourceLang)-> 
+translation_option(source_lang, SourceLang) ->
     {"source_lang", string:uppercase(SourceLang)};
 
 translation_option(split_sentences, SplitSentences) ->
@@ -104,7 +104,7 @@ translation_option(split_sentences, SplitSentences) ->
             nonewlines -> "nonewlines";
             true -> "1";
             false -> "0"
-        end    
+        end
     };
 
 translation_option(preserve_formatting, PreserveFormatting) ->
@@ -112,31 +112,31 @@ translation_option(preserve_formatting, PreserveFormatting) ->
         case PreserveFormatting of
             true -> "1";
             false -> "0"
-        end    
+        end
     };
 
-translation_option(tag_handling, xml) -> 
+translation_option(tag_handling, xml) ->
     {"tag_handling", "xml"};
 
-translation_option(non_splitting_tags, TagList) -> 
+translation_option(non_splitting_tags, TagList) ->
     {"non_splitting_tags", string:join(TagList, ",")};
 
-translation_option(splitting_tags, TagList) -> 
+translation_option(splitting_tags, TagList) ->
     {"splitting_tags", string:join(TagList, ",")};
 
-translation_option(ignore_tags, TagList) -> 
+translation_option(ignore_tags, TagList) ->
     {"ignore_tags", string:join(TagList, ",")};
 
-translation_option(outline_detection, OutlineDetection) -> 
+translation_option(outline_detection, OutlineDetection) ->
     {"outline_detection",
         case OutlineDetection of
             true -> "1";
             false -> "0"
-        end    
+        end
     };
 
 translation_option(formality, Formality) ->
-    {"formality", 
+    {"formality",
         case Formality of
             default -> "default";
             more -> "more";
@@ -144,8 +144,8 @@ translation_option(formality, Formality) ->
         end
     };
 
-translation_option(glossary_id, GlossaryId) -> 
+translation_option(glossary_id, GlossaryId) ->
     {"glossary_id", GlossaryId};
 
-translation_option(Name, Value) -> 
+translation_option(Name, Value) ->
     throw(io_lib:format("Unknown or invalid translation option: '~s = ~s~n'", [Name, Value])).

@@ -8,12 +8,12 @@
 -type glossary_name() :: iolist().
 
 -type glossary() :: #{
-    glossary_id => glossary_id(), 
-    name => glossary_name(),
-    source_lang => language(),
-    target_lang => language(),
-    creation_time => nonempty_list(),
-    entry_count => integer()
+glossary_id => glossary_id(),
+name => glossary_name(),
+source_lang => language(),
+target_lang => language(),
+creation_time => nonempty_list(),
+entry_count => integer()
 }.
 
 -type glossary_entry() :: {iolist(), iolist()}.
@@ -23,16 +23,16 @@
 -type tag_list() :: [tag()].
 
 -type translation_options() :: #{
-    source_lang => language(),
-    split_sentences => boolean() | nonewlines,
-    preserve_formatting => boolean(),
-    tag_handling => xml,
-    non_splitting_tags => tag_list(),
-    splitting_tags => tag_list(),
-    ignore_tags => tag_list(),
-    outline_detection => boolean(),
-    formality => default | more | less,
-    glossary_id => glossary_id()
+source_lang => language(),
+split_sentences => boolean() | nonewlines,
+preserve_formatting => boolean(),
+tag_handling => xml,
+non_splitting_tags => tag_list(),
+splitting_tags => tag_list(),
+ignore_tags => tag_list(),
+outline_detection => boolean(),
+formality => default | more | less,
+glossary_id => glossary_id()
 }.
 
 %% API
@@ -52,21 +52,21 @@
 ]).
 
 -export([
-    start_link/0, 
+    start_link/0,
     auth_key/1,
 
-    glossary_list/0, 
-    glossary_information/1, 
+    glossary_list/0,
+    glossary_information/1,
     glossary_entries/1,
     glossary_delete/1,
     glossary_create/4,
-    
+
     translate/2,
     translate/3,
 
     source_languages/0,
     target_languages/0,
-    
+
     usage/0
 ]).
 
@@ -88,7 +88,7 @@
 %%% API
 %%%===================================================================
 
--spec auth_key(AuthKey :: nonempty_list()) -> 
+-spec auth_key(AuthKey :: nonempty_list()) ->
     ok.
 auth_key(AuthKey) ->
     application:set_env(deeperl, auth_key, AuthKey).
@@ -110,21 +110,21 @@ glossary_delete(GlossaryId) ->
     gen_server:call(?SERVER, {delete_glossary, GlossaryId}).
 
 -spec glossary_create(
-        Name :: glossary_name(), 
-        SourceLang :: language(), 
-        TargetLang :: language(), 
-        Entries :: glossary_entries()
-    ) -> 
-        {ok, glossary()}.
+    Name :: glossary_name(),
+    SourceLang :: language(),
+    TargetLang :: language(),
+    Entries :: glossary_entries()
+) ->
+    {ok, glossary()}.
 glossary_create(Name, SourceLang, TargetLang, Entries) ->
     gen_server:call(?SERVER, {create_glossary, Name, SourceLang, TargetLang, Entries}).
 
--spec translate(TargetLang :: language(), Texts :: [iolist()]) -> 
+-spec translate(TargetLang :: language(), Texts :: [iolist()]) ->
     {ok, [{DetectedLanguage :: language(), Text :: iolist()}]}.
 translate(TargetLang, Texts) ->
     translate(TargetLang, Texts, #{}).
 
--spec translate(TargetLang :: language(), Texts :: [iolist()], Options :: translation_options()) -> 
+-spec translate(TargetLang :: language(), Texts :: [iolist()], Options :: translation_options()) ->
     {ok, [{DetectedLanguage :: language(), Text :: iolist()}]}.
 translate(TargetLang, Texts, #{} = Options) ->
     gen_server:call(?SERVER, {translate, TargetLang, Texts, Options}).
@@ -222,7 +222,7 @@ terminate(_Reason, _State) ->
 code_change(_OldVsn, State, _Extra) ->
     {ok, State}.
 
--spec auth_key() -> 
+-spec auth_key() ->
     {ok, nonempty_list()} | undefined.
 auth_key() ->
     application:get_env(deeperl, auth_key).

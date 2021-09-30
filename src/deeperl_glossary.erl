@@ -7,12 +7,12 @@
     create/4,
     information/1,
     entries/1,
-    delete/1    
+    delete/1
 ]).
 
 glossary(#{
-    <<"glossary_id">> := Id, 
-    <<"name">> := Name, 
+    <<"glossary_id">> := Id,
+    <<"name">> := Name,
     <<"source_lang">> := SourceLang,
     <<"target_lang">> := TargetLang,
     <<"creation_time">> := CreationTime,
@@ -33,8 +33,8 @@ entries(GlossaryId) ->
             get,
             {"/v2/glossaries/" ++ GlossaryId ++ "/entries", []}
         },
-        fun ({200, _}, ResponseBody) ->
-            Result = [list_to_tuple(string:split(L, "\t"))|| L <-string:split(list_to_binary(ResponseBody), "\n")],
+        fun({200, _}, ResponseBody) ->
+            Result = [list_to_tuple(string:split(L, "\t")) || L <- string:split(list_to_binary(ResponseBody), "\n")],
             {ok, Result}
         end
     }.
@@ -45,7 +45,7 @@ information(GlossaryId) ->
             get,
             {"/v2/glossaries/" ++ GlossaryId, []}
         },
-        fun ({200, _}, ResponseBody) ->
+        fun({200, _}, ResponseBody) ->
             Result = jiffy:decode(ResponseBody, [return_maps]),
             {ok, glossary(Result)}
         end
@@ -69,7 +69,7 @@ delete(GlossaryId) ->
             delete,
             {"/v2/glossaries/" ++ GlossaryId, []}
         },
-        fun ({204, _}, _) -> ok end
+        fun({204, _}, _) -> ok end
     }.
 
 create(Name, SourceLang, TargetLang, Entries) ->
