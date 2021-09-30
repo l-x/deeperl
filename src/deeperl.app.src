@@ -1,6 +1,6 @@
 {application, deeperl, [
   {description, "An Erlang/OTP application for the official DeepL  API"},
-  {vsn, "0.5.0"},
+  {vsn, "0.6.0"},
   {registered, [deeperl]},
   {mod, {deeperl_app, []}},
   {applications, [
