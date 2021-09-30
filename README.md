@@ -163,18 +163,20 @@ ok
      {"DA","Danish"},
      {"DE","German"},
      ...
+
+12> {Language, Name} = hd(SourceLanguages).
 ```
 
 ##### Supported target languages
 ```erlang
-12> {ok, TargetLanguages} = deeperl:target_languages().
+13> {ok, TargetLanguages} = deeperl:target_languages().
 {ok,[{"BG","Bulgarian",false},
      {"CS","Czech",false},
      {"DA","Danish",false},
      {"DE","German",true},
      ...
 
-13> {Language, Name, SupportsFormality} = hd(TargetLanguages).
+14> {Language, Name, SupportsFormality} = hd(TargetLanguages).
 {"BG","Bulgarian",false}
 ```
 
@@ -182,7 +184,7 @@ ok
 > [Official API documentation](https://www.deepl.com/docs-api/other-functions/monitoring-usage/)
 
 ```erlang
-14> {ok, {CharacterCount, CharacterLimit}} = deeperl:usage().
+15> {ok, {CharacterCount, CharacterLimit}} = deeperl:usage().
 {ok,{28788,50000000}}
 ```
 
