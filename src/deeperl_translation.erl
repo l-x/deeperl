@@ -1,3 +1,4 @@
+%% @private
 -module(deeperl_translation).
 
 -export([
@@ -20,7 +21,7 @@ source_languages() ->
                 "type=source"
             }
         },
-        fun({200, _}, ResponseBody) ->
+        fun(ResponseBody) ->
             Response = jiffy:decode(ResponseBody, [return_maps]),
             {ok, [{
                 unicode:characters_to_list(maps:get(<<"language">>, Map)),
@@ -40,7 +41,7 @@ target_languages() ->
                 "type=target"
             }
         },
-        fun({200, _}, ResponseBody) ->
+        fun(ResponseBody) ->
             Response = jiffy:decode(ResponseBody, [return_maps]),
             {ok, [{
                 unicode:characters_to_list(maps:get(<<"language">>, Map)),
@@ -61,7 +62,7 @@ usage() ->
                 "type=source"
             }
         },
-        fun({200, _}, ResponseBody) ->
+        fun(ResponseBody) ->
             Response = jiffy:decode(ResponseBody, [return_maps]),
             {ok, {
                 maps:get(<<"character_count">>, Response),
@@ -85,7 +86,7 @@ translate(TargetLanguage, Texts, #{} = TranslationOptions) ->
                 uri_string:compose_query(TextParams ++ TargetLangParam ++ TranslationParams)
             }
         },
-        fun({200, _}, ResponseBody) ->
+        fun(ResponseBody) ->
             Response = jiffy:decode(ResponseBody, [return_maps]),
 
             {ok, [{
@@ -96,7 +97,7 @@ translate(TargetLanguage, Texts, #{} = TranslationOptions) ->
     }.
 
 translation_option(source_lang, SourceLang) ->
-    {"source_lang", string:uppercase(SourceLang)};
+    {"source_lang", SourceLang};
 
 translation_option(split_sentences, SplitSentences) ->
     {"split_sentences",
@@ -148,4 +149,4 @@ translation_option(glossary_id, GlossaryId) ->
     {"glossary_id", GlossaryId};
 
 translation_option(Name, Value) ->
-    throw(io_lib:format("Unknown or invalid translation option: '~s = ~s~n'", [Name, Value])).
+    {atom_to_list(Name), Value}.

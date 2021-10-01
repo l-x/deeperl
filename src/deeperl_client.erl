@@ -1,10 +1,11 @@
+%% @private
 -module(deeperl_client).
 
 -export([
     call/2
 ]).
 
-call(AuthKey, {{Method, RequestData}, ResultFun}) ->
+call({HttpcProfile, AuthKey}, {{Method, RequestData}, ResultFun}) ->
     Request = case RequestData of
                   {Route, Headers, ContentType, Body} ->
                       {url(AuthKey, Route), Headers ++ headers(AuthKey), ContentType, Body};
@@ -13,11 +14,24 @@ call(AuthKey, {{Method, RequestData}, ResultFun}) ->
               end,
 
 
-    {ok, Response} = httpc:request(Method, Request, [], []),
+    {ok, Response} = httpc:request(Method, Request, [], [], HttpcProfile),
 
     {{_, StatusCode, StatusMessage}, _, ResponseBody} = Response,
 
-    ResultFun({StatusCode, StatusMessage}, ResponseBody).
+    case StatusCode of
+        400 -> {error, badrequest, StatusMessage};
+        401 -> {error, authfailed, StatusMessage};
+        403 -> {error, forbidden, StatusMessage};
+        404 -> {error, notfound, StatusMessage};
+        413 -> {error, requestsize, StatusMessage};
+        415 -> {error, notsupported, StatusMessage};
+        429 -> {error, toomanyrequests, StatusMessage};
+        456 -> {error, quotaexceeded, StatusMessage};
+        503 -> {error, resourceunavailable, StatusMessage};
+        529 -> {error, toomanyrequests, StatusMessage};
+        Code when Code >= 500 -> {error, internalerror, {StatusCode, StatusMessage}};
+        Code when Code >= 200, Code =< 299 -> ResultFun(ResponseBody)
+    end.
 
 host(AuthKey) ->
     case string:right(AuthKey, 3) of

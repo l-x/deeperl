@@ -1,5 +1,4 @@
 %%% @private
-
 -module(deeperl_glossary).
 
 -export([
@@ -33,7 +32,7 @@ entries(GlossaryId) ->
             get,
             {"/v2/glossaries/" ++ GlossaryId ++ "/entries", []}
         },
-        fun({200, _}, ResponseBody) ->
+        fun(ResponseBody) ->
             Lines = string:split(ResponseBody, "\n", all),
 
             {ok, [list_to_tuple(string:split(Line, "\t", all)) || Line <- Lines]}
@@ -46,7 +45,7 @@ information(GlossaryId) ->
             get,
             {"/v2/glossaries/" ++ GlossaryId, []}
         },
-        fun({200, _}, ResponseBody) ->
+        fun(ResponseBody) ->
             Result = jiffy:decode(ResponseBody, [return_maps]),
             {ok, glossary(Result)}
         end
@@ -58,7 +57,7 @@ list() ->
             get,
             {"/v2/glossaries", []}
         },
-        fun({200, _}, ResponseBody) ->
+        fun(ResponseBody) ->
             Result = jiffy:decode(ResponseBody, [return_maps]),
             {ok, [glossary(Map) || Map <- maps:get(<<"glossaries">>, Result)]}
         end
@@ -70,7 +69,7 @@ delete(GlossaryId) ->
             delete,
             {"/v2/glossaries/" ++ GlossaryId, []}
         },
-        fun({204, _}, _) -> ok end
+        fun(_) -> ok end
     }.
 
 create(Name, SourceLang, TargetLang, Entries) ->
@@ -91,7 +90,7 @@ create(Name, SourceLang, TargetLang, Entries) ->
                 uri_string:compose_query(Params)
             }
         },
-        fun({201, _}, ResponseBody) ->
+        fun(ResponseBody) ->
             Result = jiffy:decode(ResponseBody, [return_maps]),
             {ok, glossary(Result)}
         end
