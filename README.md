@@ -12,17 +12,17 @@ An Erlang/OTP client application for the official [DeepL  API] Version 2.
 ### Rebar3
 ```erlang
 {deps, [
-  % Latest version (git):
+  % Latest release (git):
   {deeperl, {git, "https://codeberg.org/l-x/deeperl.git", {branch, "main"}}},
   
   % Specific version (git):
-  {deeperl, {git, "https://codeberg.org/l-x/deeperl.git", {tag, "0.6.0"}}},
+  {deeperl, {git, "https://codeberg.org/l-x/deeperl.git", {tag, "0.7.0"}}},
 
   % Latest version (hex):
   deeperl,
 
   % Specific version (hex):
-  {deeperl, "0.6.0"}
+  {deeperl, "0.7.0"}
 ]}.
 ``` 
 
