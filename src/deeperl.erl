@@ -1,7 +1,7 @@
 -module(deeperl).
 -behaviour(gen_server).
 
--type error() :: {error, Description :: atom(), Info :: term()}.
+-type error() :: {error, Reason :: atom(), Info :: term()}.
 
 -type nonempty_str_or_binary() :: nonempty_string() | nonempty_binary().
 
