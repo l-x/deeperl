@@ -12,8 +12,7 @@ call({HttpcProfile, AuthKey}, DeeplModule, Arguments) ->
     Request = case RequestData of
                   {Route, Headers, ContentType, Body} ->
                       {url(AuthKey, Route), Headers ++ headers(AuthKey), ContentType, Body};
-                  {Route, Headers} -> {url(AuthKey, Route), Headers ++ headers(AuthKey)};
-                  {Route} -> {url(AuthKey, Route), headers(AuthKey)}
+                  {Route, Headers} -> {url(AuthKey, Route), Headers ++ headers(AuthKey)}
               end,
 
 
