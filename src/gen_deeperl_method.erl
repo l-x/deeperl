@@ -15,7 +15,7 @@
         Path :: nonempty_string(),
         Headers :: list({nonempty_string(), nonempty_string()}),
         ContentType :: nonempty_string(),
-        Body :: nonempty_string() | nonempty_binary()
+        Body :: string() | binary()
     }
 }.
 
@@ -25,4 +25,4 @@
 -export([]).
 
 -callback request(Options :: tuple()) -> request().
--callback response(Body :: nonempty_string() | nonempty_binary()) -> {ok, term()} | ok.
+-callback response(Body :: string() | binary()) -> {ok, term()} | ok.

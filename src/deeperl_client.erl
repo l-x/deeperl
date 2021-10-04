@@ -15,7 +15,6 @@ call({HttpcProfile, AuthKey}, {DeeplModule, Arguments}) ->
                   {Route, Headers} -> {url(AuthKey, Route), Headers ++ headers(AuthKey)}
               end,
 
-
     {ok, Response} = httpc:request(Method, Request, [], [], HttpcProfile),
 
     {{_, StatusCode, StatusMessage}, _, ResponseBody} = Response,

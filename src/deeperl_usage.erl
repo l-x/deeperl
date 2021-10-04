@@ -12,7 +12,7 @@ request({}) ->
             "/v2/usage",
             [],
             "application/x-www-form-urlencoded; charset=utf-8",
-            "type=source"
+            ""
         }
     }.
 
