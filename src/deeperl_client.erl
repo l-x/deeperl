@@ -46,5 +46,11 @@ url(AuthKey, Route) ->
 headers(AuthKey) ->
     [
         {"Authorization", "DeepL-Auth-Key " ++ AuthKey},
-        {"User-Agent", "deeperl/dev"}
+        {"User-Agent", "deeperl/" ++ vsn() ++ " (https://codeberg.org/l-x/deeperl)"}
     ].
+
+vsn() ->
+    case application:get_key(vsn) of
+        {ok, Vsn} -> Vsn;
+        _ -> "unknown"
+    end.
