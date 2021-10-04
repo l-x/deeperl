@@ -139,7 +139,7 @@ ok
 > [Official API documentation](https://www.deepl.com/docs-api/managing-glossaries/creating-a-glossary/)
 
 ```erlang
-12> Entries = [{<<"Entry1">>, <<"Translation1">>}, {<<"Entry2">>, <<"Translation2">>}, {<<Entry3>>, <<"Translation3">>}].
+12> Entries = [{<<"Entry1">>, <<"Translation1">>}, {<<"Entry2">>, <<"Translation2">>}, {<<"Entry3">>, <<"Translation3">>}].
 [{<<"Entry1">>,<<"Translation1">>},
  {<<"Entry2">>,<<"Translation2">>},
  {<<"Entry3">>,<<"Translation3">>}]
