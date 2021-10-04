@@ -2,11 +2,11 @@
 -module(deeperl_client).
 
 -export([
-    call/3
+    call/2
 ]).
 
--spec call ({atom() | pid(), nonempty_string()}, module(), tuple()) -> term().
-call({HttpcProfile, AuthKey}, DeeplModule, Arguments) ->
+-spec call ({atom() | pid(), nonempty_string()}, {module(), tuple()}) -> term().
+call({HttpcProfile, AuthKey}, {DeeplModule, Arguments}) ->
     {Method, RequestData} = DeeplModule:request(Arguments),
 
     Request = case RequestData of
