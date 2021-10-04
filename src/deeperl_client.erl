@@ -2,10 +2,13 @@
 -module(deeperl_client).
 
 -export([
-    call/2
+    call/3
 ]).
 
-call({HttpcProfile, AuthKey}, {{Method, RequestData}, ResultFun}) ->
+-spec call ({atom() | pid(), nonempty_string()}, module(), tuple()) -> term().
+call({HttpcProfile, AuthKey}, DeeplModule, Arguments) ->
+    {Method, RequestData} = DeeplModule:request(Arguments),
+
     Request = case RequestData of
                   {Route, Headers, ContentType, Body} ->
                       {url(AuthKey, Route), Headers ++ headers(AuthKey), ContentType, Body};
@@ -30,7 +33,7 @@ call({HttpcProfile, AuthKey}, {{Method, RequestData}, ResultFun}) ->
         503 -> {error, resourceunavailable, StatusMessage};
         529 -> {error, toomanyrequests, StatusMessage};
         Code when Code >= 500 -> {error, internalerror, {StatusCode, StatusMessage}};
-        Code when Code >= 200, Code =< 299 -> ResultFun(ResponseBody)
+        Code when Code >= 200, Code =< 299 -> DeeplModule:response(ResponseBody)
     end.
 
 host(AuthKey) ->

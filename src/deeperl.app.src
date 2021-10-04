@@ -13,8 +13,17 @@
       deeperl_app,
       deeperl_client,
       deeperl_glossary,
-      deeperl_sup,
-      deeperl_translation
+      deeperl_glossary_create,
+      deeperl_glossary_delete,
+      deeperl_glossary_entries,
+      deeperl_glossary_information,
+      deeperl_glossary_list,
+      deeperl_source_languages,
+      deeperl_target_languages,
+      deeperl_translate,
+      deeperl_usage,
+      gen_deeperl_method,
+      deeperl_sup
     ]},
     {licenses, ["Apache 2.0"]},
     {links, [
