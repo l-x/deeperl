@@ -3,7 +3,7 @@
     {vsn, "0.8.0"},
     {registered, [deeperl]},
     {mod, {deeperl_app, []}},
-    {applications, [kernel, stdlib, inets]},
+    {applications, [kernel, stdlib, inets, ssl]},
     {env, [
       {auth_key, ""},
       {httpc_profile, default}
