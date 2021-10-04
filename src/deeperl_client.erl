@@ -5,14 +5,15 @@
     call/2
 ]).
 
-call({HttpcProfile, AuthKey}, {{Method, RequestData}, ResultFun}) ->
+-spec call ({atom() | pid(), nonempty_string()}, {module(), tuple()}) -> term().
+call({HttpcProfile, AuthKey}, {DeeplModule, Arguments}) ->
+    {Method, RequestData} = DeeplModule:request(Arguments),
+
     Request = case RequestData of
                   {Route, Headers, ContentType, Body} ->
                       {url(AuthKey, Route), Headers ++ headers(AuthKey), ContentType, Body};
-                  {Route, Headers} -> {url(AuthKey, Route), Headers ++ headers(AuthKey)};
-                  {Route} -> {url(AuthKey, Route), headers(AuthKey)}
+                  {Route, Headers} -> {url(AuthKey, Route), Headers ++ headers(AuthKey)}
               end,
-
 
     {ok, Response} = httpc:request(Method, Request, [], [], HttpcProfile),
 
@@ -30,7 +31,7 @@ call({HttpcProfile, AuthKey}, {{Method, RequestData}, ResultFun}) ->
         503 -> {error, resourceunavailable, StatusMessage};
         529 -> {error, toomanyrequests, StatusMessage};
         Code when Code >= 500 -> {error, internalerror, {StatusCode, StatusMessage}};
-        Code when Code >= 200, Code =< 299 -> ResultFun(ResponseBody)
+        Code when Code >= 200, Code =< 299 -> DeeplModule:response(ResponseBody)
     end.
 
 host(AuthKey) ->
@@ -45,5 +46,11 @@ url(AuthKey, Route) ->
 headers(AuthKey) ->
     [
         {"Authorization", "DeepL-Auth-Key " ++ AuthKey},
-        {"User-Agent", "deeperl/dev"}
+        {"User-Agent", "deeperl/" ++ vsn() ++ " (https://codeberg.org/l-x/deeperl)"}
     ].
+
+vsn() ->
+    case application:get_key(vsn) of
+        {ok, Vsn} -> Vsn;
+        _ -> "unknown"
+    end.

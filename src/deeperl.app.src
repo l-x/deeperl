@@ -1,6 +1,6 @@
 {application, deeperl,
   [{description, "Inofficial Erlang/OTP client application for the official DeepL API Version 2"},
-    {vsn, "0.7.0"},
+    {vsn, "0.8.0"},
     {registered, [deeperl]},
     {mod, {deeperl_app, []}},
     {applications, [kernel, stdlib, inets]},
@@ -13,8 +13,17 @@
       deeperl_app,
       deeperl_client,
       deeperl_glossary,
-      deeperl_sup,
-      deeperl_translation
+      deeperl_glossary_create,
+      deeperl_glossary_delete,
+      deeperl_glossary_entries,
+      deeperl_glossary_information,
+      deeperl_glossary_list,
+      deeperl_source_languages,
+      deeperl_target_languages,
+      deeperl_translate,
+      deeperl_usage,
+      gen_deeperl_method,
+      deeperl_sup
     ]},
     {licenses, ["Apache 2.0"]},
     {links, [

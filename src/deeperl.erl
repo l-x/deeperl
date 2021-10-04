@@ -158,38 +158,31 @@ init(_) ->
 
 %% @private
 handle_call({list_glossaries}, _From, State) ->
-    {reply, deeperl_client:call(config(), deeperl_glossary:list()), State};
+    {reply, deeperl_client:call(config(), {deeperl_glossary_list, {}}), State};
 
 handle_call({glossary_information, GlossaryId}, _From, State) ->
-    {reply, deeperl_client:call(config(), deeperl_glossary:information(GlossaryId)), State};
+    {reply, deeperl_client:call(config(), {deeperl_glossary_information, {GlossaryId}}), State};
 
 handle_call({glossary_entries, GlossaryId}, _From, State) ->
-    {reply, deeperl_client:call(config(), deeperl_glossary:entries(GlossaryId)), State};
+    {reply, deeperl_client:call(config(), {deeperl_glossary_entries, {GlossaryId}}), State};
 
 handle_call({delete_glossary, GlossaryId}, _From, State) ->
-    {reply, deeperl_client:call(config(), deeperl_glossary:delete(GlossaryId)), State};
+    {reply, deeperl_client:call(config(), {deeperl_glossary_delete, {GlossaryId}}), State};
 
 handle_call({create_glossary, Name, SourceLang, TargetLang, Entries}, _From, State) ->
-    FunctionConfig = deeperl_glossary:create(
-        Name,
-        SourceLang,
-        TargetLang,
-        Entries
-    ),
-
-    {reply, deeperl_client:call(config(), FunctionConfig), State};
+    {reply, deeperl_client:call(config(), {deeperl_glossary_create, {Name, SourceLang, TargetLang, Entries}}), State};
 
 handle_call({translate, TargetLang, Texts, #{} = Options}, _From, State) ->
-    {reply, deeperl_client:call(config(), deeperl_translation:translate(TargetLang, Texts, Options)), State};
+    {reply, deeperl_client:call(config(), {deeperl_translate, {TargetLang, Texts, Options}}), State};
 
 handle_call({source_languages}, _From, State) ->
-    {reply, deeperl_client:call(config(), deeperl_translation:source_languages()), State};
+    {reply, deeperl_client:call(config(), {deeperl_source_languages, {}}), State};
 
 handle_call({target_languages}, _From, State) ->
-    {reply, deeperl_client:call(config(), deeperl_translation:target_languages()), State};
+    {reply, deeperl_client:call(config(), {deeperl_target_languages, {}}), State};
 
 handle_call({usage}, _From, State) ->
-    {reply, deeperl_client:call(config(), deeperl_translation:usage()), State};
+    {reply, deeperl_client:call(config(), {deeperl_usage, {}}), State};
 
 handle_call(_Request, _From, State) ->
     {reply, ok, State}.
