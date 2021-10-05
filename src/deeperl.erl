@@ -75,7 +75,8 @@
 -define(SERVER, ?MODULE).
 
 -record(state, {
-    auth_key :: string()
+    auth_key :: string(),
+    httpc_profile :: atom() | pid()
 }).
 
 %%%===================================================================
@@ -90,7 +91,7 @@ auth_key(AuthKey) ->
 %% @doc Set the inets httpc profile to be used
 -spec httpc_profile(Profile :: pid() | atom()) -> ok.
 httpc_profile(Profile) ->
-    application:set_env(?MODULE, httpc_profile, Profile).
+    gen_server:cast(?SERVER, {httpc_profile, Profile}).
 
 %% @doc List all glossaries
 -spec glossary_list() -> {ok, [glossary()]} | error().
@@ -155,9 +156,10 @@ start_link(Args) ->
     gen_server:start_link({local, ?SERVER}, ?MODULE, Args, []).
 
 %% @private
-init(#{auth_key := AuthKey}) ->
+init(#{auth_key := AuthKey, httpc_profile := HttpcProfile}) ->
     {ok, #state{
-        auth_key = AuthKey
+        auth_key = AuthKey,
+        httpc_profile = HttpcProfile
     }}.
 
 %% @private
@@ -195,6 +197,9 @@ handle_call(_Request, _From, State) ->
 handle_cast({auth_key, AuthKey}, State) ->
     {noreply, State#state{auth_key = AuthKey}};
 
+handle_cast({httpc_profile, Profile}, State) ->
+    {noreply, State#state{httpc_profile = Profile}};
+
 handle_cast(_Request, State) ->
     {noreply, State}.
 
@@ -210,8 +215,8 @@ terminate(_Reason, _State) ->
 code_change(_OldVsn, State, _Extra) ->
     {ok, State}.
 
-config(#state{auth_key = AuthKey}) ->
+config(#state{auth_key = AuthKey, httpc_profile = HttpcProfile}) ->
     {
-        application:get_env(?MODULE, httpc_profile, default),
+        HttpcProfile,
         AuthKey
     }.
