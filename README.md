@@ -44,7 +44,9 @@ Or simply add deeperl to the applications property of your .app files.
 ### Authentication
 > [Official API documentation](https://www.deepl.com/docs-api/accessing-the-api/authentication/)
 
-To use the DeepL API an authentication key is required. This key is stored in the application environment and can therefore be set in your application config:
+To use the DeepL API an authentication key is required. 
+
+When booting deeperl this key is retrieved from `application:get_env(deeperl, auth_key)` and stored in the deeperl server processes internal state.
 
 `yourapp.config`
 ```erlang
@@ -57,11 +59,13 @@ To use the DeepL API an authentication key is required. This key is stored in th
 
 The authorization key can also be set at runtime by calling
 ```erlang
-1> application:ensure_all_started(deeperl).
-{ok, [deeperl]}
+1> application:auth_key("your DeepL auth_key here").
+ok
 ```
 
-**Note**: deeperl recognizes which API endpoint (api-free.deepl.com or api.deepl.com) to use based on the token.
+However, this does not change the corresponding application environment setting.
+
+**Note**: deeperl determines what API endpoint to use based on the provided auth_key.
 
 ### Configuring the http client
 
