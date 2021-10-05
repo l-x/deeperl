@@ -3,19 +3,19 @@
 -behaviour(supervisor).
 
 -export([
-    start_link/0,
+    start_link/1,
     init/1
 ]).
 
 -define(SERVER, ?MODULE).
 
-start_link() ->
-    supervisor:start_link({local, ?SERVER}, ?MODULE, []).
+start_link(#{} = Config) ->
+    supervisor:start_link({local, ?SERVER}, ?MODULE, [Config]).
 
-init([]) ->
+init([Config]) ->
     ChildSpec = #{
         id => deeperl,
-        start => {deeperl, start_link, []},
+        start => {deeperl, start_link, [Config]},
         restart => permanent,
         type => worker
     },

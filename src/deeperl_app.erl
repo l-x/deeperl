@@ -9,7 +9,14 @@
 ]).
 
 start(_StartType, _StartArgs) ->
-    deeperl_sup:start_link().
+    AuthKey = case application:get_env(auth_key) of
+                  {ok, Value} -> Value;
+                  undefined -> ""
+              end,
+
+    deeperl_sup:start_link(#{
+        auth_key => AuthKey
+    }).
 
 stop(_State) ->
     ok.
