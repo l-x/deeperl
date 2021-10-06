@@ -5,10 +5,59 @@
 
 all() ->
     [
+        auth_key,
+        httpc_profile,
         usage,
         source_languages,
         target_languages
     ].
+
+auth_key(_Config) ->
+    ok = deeperl:auth_key("some_authkey"),
+
+    Request = {
+        "https://api.deepl.com/v2/glossaries",
+        [
+            {"Authorization", "DeepL-Auth-Key some_authkey"},
+            {"User-Agent", "deeperl/0.8.0 (https://codeberg.org/l-x/deeperl)"}
+        ]
+    },
+
+    ResponseBody = <<"{\"glossaries\": []}">>,
+
+    MockFun = fun(_ActualRequestMethod, ActualRequest, [], [], default) ->
+        ActualRequest = Request,
+
+        {ok, {{ok, 200, "status message"}, {}, ResponseBody}}
+      end,
+
+    meck:expect(httpc, request, MockFun),
+
+    deeperl:glossary_list(),
+
+    ok = deeperl:auth_key(""). % Reset to empty password
+
+httpc_profile(_Config) ->
+    ok = deeperl:httpc_profile(some_httpc_profile),
+
+    Request = {
+        "https://api.deepl.com/v2/glossaries",
+        ?DEFAULT_HEADERS
+    },
+
+    ResponseBody = <<"{\"glossaries\": []}">>,
+
+    MockFun = fun(_ActualRequestMethod, ActualRequest, [], [], some_httpc_profile) ->
+        ActualRequest = Request,
+
+        {ok, {{ok, 200, "status message"}, {}, ResponseBody}}
+      end,
+
+    meck:expect(httpc, request, MockFun),
+
+    deeperl:glossary_list(),
+
+    ok = deeperl:httpc_profile(default). % Reset to default profile
 
 usage(_Config) ->
     Request = {
