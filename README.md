@@ -1,5 +1,6 @@
-[![Hex pm](https://img.shields.io/hexpm/l/deeperl.svg?style=flat)](https://hex.pm/packages/deeperl)
-[![Hex pm](https://img.shields.io/hexpm/v/deeperl.svg?style=flat)](https://hex.pm/packages/deeperl)
+[![Codeberg](https://img.shields.io/badge/Codeberg-deeperl-green?logo=codeberg&style=for-the-badge)](https://codeberg.org/l-x/deeperl)
+[![Hex pm](https://img.shields.io/hexpm/v/deeperl.svg?style=for-the-badge&)](https://hex.pm/packages/deeperl)
+[![Hex pm](https://img.shields.io/hexpm/l/deeperl.svg?style=for-the-badge&)](https://hex.pm/packages/deeperl)
 
 # deeperl
 
