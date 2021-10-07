@@ -42,7 +42,7 @@
 %% API
 
 -export([
-    start_link/0,
+    start_link/1,
 
     auth_key/1,
     httpc_profile/1,
@@ -74,7 +74,10 @@
 
 -define(SERVER, ?MODULE).
 
--record(state, {}).
+-record(state, {
+    auth_key :: string(),
+    httpc_profile :: atom() | pid()
+}).
 
 %%%===================================================================
 %%% API
@@ -83,12 +86,12 @@
 %% @doc Set the DeepL authentication key
 -spec auth_key(AuthKey :: nonempty_string()) -> ok.
 auth_key(AuthKey) ->
-    application:set_env(?MODULE, auth_key, AuthKey).
+    gen_server:cast(?SERVER, {auth_key, AuthKey}).
 
 %% @doc Set the inets httpc profile to be used
 -spec httpc_profile(Profile :: pid() | atom()) -> ok.
 httpc_profile(Profile) ->
-    application:set_env(?MODULE, httpc_profile, Profile).
+    gen_server:cast(?SERVER, {httpc_profile, Profile}).
 
 %% @doc List all glossaries
 -spec glossary_list() -> {ok, [glossary()]} | error().
@@ -149,45 +152,54 @@ usage() ->
     gen_server:call(?SERVER, {usage}).
 
 %% @private
-start_link() ->
-    gen_server:start_link({local, ?SERVER}, ?MODULE, [], []).
+start_link(Args) ->
+    gen_server:start_link({local, ?SERVER}, ?MODULE, Args, []).
 
 %% @private
-init(_) ->
-    {ok, #state{}}.
+init(#{auth_key := AuthKey, httpc_profile := HttpcProfile}) ->
+    {ok, #state{
+        auth_key = AuthKey,
+        httpc_profile = HttpcProfile
+    }}.
 
 %% @private
 handle_call({list_glossaries}, _From, State) ->
-    {reply, deeperl_client:call(config(), {deeperl_glossary_list, {}}), State};
+    {reply, deeperl_client:call(config(State), {deeperl_glossary_list, {}}), State};
 
 handle_call({glossary_information, GlossaryId}, _From, State) ->
-    {reply, deeperl_client:call(config(), {deeperl_glossary_information, {GlossaryId}}), State};
+    {reply, deeperl_client:call(config(State), {deeperl_glossary_information, {GlossaryId}}), State};
 
 handle_call({glossary_entries, GlossaryId}, _From, State) ->
-    {reply, deeperl_client:call(config(), {deeperl_glossary_entries, {GlossaryId}}), State};
+    {reply, deeperl_client:call(config(State), {deeperl_glossary_entries, {GlossaryId}}), State};
 
 handle_call({delete_glossary, GlossaryId}, _From, State) ->
-    {reply, deeperl_client:call(config(), {deeperl_glossary_delete, {GlossaryId}}), State};
+    {reply, deeperl_client:call(config(State), {deeperl_glossary_delete, {GlossaryId}}), State};
 
 handle_call({create_glossary, Name, SourceLang, TargetLang, Entries}, _From, State) ->
-    {reply, deeperl_client:call(config(), {deeperl_glossary_create, {Name, SourceLang, TargetLang, Entries}}), State};
+    {reply, deeperl_client:call(config(State), {deeperl_glossary_create, {Name, SourceLang, TargetLang, Entries}}), State};
 
 handle_call({translate, TargetLang, Texts, #{} = Options}, _From, State) ->
-    {reply, deeperl_client:call(config(), {deeperl_translate, {TargetLang, Texts, Options}}), State};
+    {reply, deeperl_client:call(config(State), {deeperl_translate, {TargetLang, Texts, Options}}), State};
 
 handle_call({source_languages}, _From, State) ->
-    {reply, deeperl_client:call(config(), {deeperl_source_languages, {}}), State};
+    {reply, deeperl_client:call(config(State), {deeperl_source_languages, {}}), State};
 
 handle_call({target_languages}, _From, State) ->
-    {reply, deeperl_client:call(config(), {deeperl_target_languages, {}}), State};
+    {reply, deeperl_client:call(config(State), {deeperl_target_languages, {}}), State};
 
 handle_call({usage}, _From, State) ->
-    {reply, deeperl_client:call(config(), {deeperl_usage, {}}), State};
+    {reply, deeperl_client:call(config(State), {deeperl_usage, {}}), State};
 
 handle_call(_Request, _From, State) ->
     {reply, ok, State}.
 
 %% @private
+handle_cast({auth_key, AuthKey}, State) ->
+    {noreply, State#state{auth_key = AuthKey}};
+
+handle_cast({httpc_profile, Profile}, State) ->
+    {noreply, State#state{httpc_profile = Profile}};
+
 handle_cast(_Request, State) ->
     {noreply, State}.
 
@@ -203,8 +215,9 @@ terminate(_Reason, _State) ->
 code_change(_OldVsn, State, _Extra) ->
     {ok, State}.
 
-config() ->
+%% @private
+config(#state{auth_key = AuthKey, httpc_profile = HttpcProfile}) ->
     {
-        application:get_env(?MODULE, httpc_profile, default),
-        application:get_env(?MODULE, auth_key, undefined)
+        HttpcProfile,
+        AuthKey
     }.

@@ -81,7 +81,4 @@ translation_option(formality, Formality) ->
     };
 
 translation_option(glossary_id, GlossaryId) ->
-    {"glossary_id", GlossaryId};
-
-translation_option(Name, Value) ->
-    {atom_to_list(Name), Value}.
+    {"glossary_id", GlossaryId}.
