@@ -2,7 +2,7 @@
 
 -define(DEFAULT_HEADERS, [
     {"Authorization", "DeepL-Auth-Key "},
-    {"User-Agent", "deeperl/0.9.0 (https://codeberg.org/l-x/deeperl)"}
+    {"User-Agent", "deeperl/0.10.0 (https://codeberg.org/l-x/deeperl)"}
 ]).
 
 init_per_suite(Config) ->
