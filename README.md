@@ -41,8 +41,6 @@ $ rebar3 shell
 Or simply add deeperl to the applications property of your .app files.
 
 ### Authentication
-> [Official API documentation](https://www.deepl.com/docs-api/accessing-the-api/authentication/)
-
 To use the DeepL API an authentication key is required. 
 
 When booting deeperl this key is retrieved from `application:get_env(deeperl, auth_key)` and stored in the deeperl server processes internal state.
@@ -90,7 +88,6 @@ ok
 ```
 
 ### Translating Text
-> [Official API documentation](https://www.deepl.com/docs-api/translating-text/)
 
 ```erlang
 5> {ok, Translations} = deeperl:translate("de", ["Rien ne vas plus", <<"Game over">>]).
@@ -102,7 +99,6 @@ ok
      {"EN",<<"Spiel vorbei">>}]}
 ```
 ### Listing supported languages
-> [Official API documentation](https://www.deepl.com/docs-api/other-functions/listing-supported-languages/)
 
 #### Supported source languages
 ```erlang
@@ -131,7 +127,7 @@ ok
 ```
 
 ### Monitoring usage
-> [Official API documentation](https://www.deepl.com/docs-api/other-functions/monitoring-usage/)
+
 ```erlang
 11> {ok, {CharacterCount, CharacterLimit}} = deeperl:usage().
 {ok,{28788,50000000}}
@@ -139,7 +135,6 @@ ok
 
 ### Managing glossaries
 #### Creating a glossary
-> [Official API documentation](https://www.deepl.com/docs-api/managing-glossaries/creating-a-glossary/)
 
 ```erlang
 12> Entries = [{<<"Entry1">>, <<"Translation1">>}, {<<"Entry2">>, <<"Translation2">>}, {<<"Entry3">>, <<"Translation3">>}].
@@ -159,7 +154,6 @@ ok
 ```
 
 #### Listing glossary information
-> [Official API documentation](https://www.deepl.com/docs-api/managing-glossaries/listing-glossary-information/)
 
 ```erlang
 15> {ok, Glossary} = deeperl:glossary_information(GlossaryId).
@@ -171,7 +165,6 @@ ok
 ```
 
 #### Listing entries of a glossary
-> [Official API documentation](https://www.deepl.com/docs-api/managing-glossaries/listing-entries-of-a-glossary/)
 
 ```erlang
 16> {ok, _} = deeperl:glossary_entries(GlossaryId).
@@ -181,7 +174,6 @@ ok
 ```
 
 #### Listing glossaries
-> [Official API documentation](https://www.deepl.com/docs-api/managing-glossaries/listing-glossaries/)
 
 ```erlang
 17> {ok, Glossaries} = deeperl:glossary_list().
@@ -198,7 +190,6 @@ ok
 ```
 
 #### Deleting a glossary
-> [Official API documentation](https://www.deepl.com/docs-api/managing-glossaries/deleing-a-glossary/)
 
 ```erlang
 18> ok = deeperl:glossary_delete(GlossaryId).
