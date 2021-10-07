@@ -1,8 +1,6 @@
 [![Hex pm](https://img.shields.io/hexpm/l/deeperl.svg?style=flat)](https://hex.pm/packages/deeperl)
 [![Hex pm](https://img.shields.io/hexpm/v/deeperl.svg?style=flat)](https://hex.pm/packages/deeperl)
 
-**WORK IN PROGRESS** use at your own risk!
-
 # deeperl
 
 An Erlang/OTP client application for the official [DeepL  API] Version 2.
