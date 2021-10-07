@@ -1,8 +1,6 @@
 [![Hex pm](https://img.shields.io/hexpm/l/deeperl.svg?style=flat)](https://hex.pm/packages/deeperl)
 [![Hex pm](https://img.shields.io/hexpm/v/deeperl.svg?style=flat)](https://hex.pm/packages/deeperl)
 
-**WORK IN PROGRESS** use at your own risk!
-
 # deeperl
 
 An Erlang/OTP client application for the official [DeepL  API] Version 2.
@@ -16,13 +14,13 @@ An Erlang/OTP client application for the official [DeepL  API] Version 2.
   {deeperl, {git, "https://codeberg.org/l-x/deeperl.git", {branch, "main"}}},
   
   % Specific version (git):
-  {deeperl, {git, "https://codeberg.org/l-x/deeperl.git", {tag, "0.8.0"}}},
+  {deeperl, {git, "https://codeberg.org/l-x/deeperl.git", {tag, "0.9.0"}}},
 
   % Latest version (hex):
   deeperl,
 
   % Specific version (hex):
-  {deeperl, "0.8.0"}
+  {deeperl, "0.9.0"}
 ]}.
 ``` 
 
