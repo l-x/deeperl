@@ -134,6 +134,19 @@ ok
 ```
 
 ### Managing glossaries
+
+#### List language pairs supported by glossaries
+
+```erlang
+12> {ok, LanguagePairs} = deeperl:glossary_language_pairs().
+{ok,[{"de","en"},
+     {"en","de"},
+     {"en","es"},
+     {"en","fr"},
+     {"es","en"},
+     {"fr","en"}]}
+```
+
 #### Creating a glossary
 
 ```erlang

@@ -18,6 +18,7 @@
       deeperl_glossary_entries,
       deeperl_glossary_information,
       deeperl_glossary_list,
+      deeperl_glossary_language_pairs,
       deeperl_source_languages,
       deeperl_target_languages,
       deeperl_translate,

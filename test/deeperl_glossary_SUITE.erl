@@ -9,7 +9,8 @@ all() ->
         glossary_information,
         glossary_create,
         glossary_entries,
-        glossary_delete
+        glossary_delete,
+        glossary_language_pairs
     ].
 
 glossary_list(_Config) ->
@@ -132,3 +133,22 @@ glossary_delete(_Config) ->
     expect_request(delete, Request, <<"we don't care">>),
 
     ok = deeperl:glossary_delete("c27f8f1d-69f7-4ffe-b3f6-822c34128987").
+
+glossary_language_pairs(_Config) ->
+    Request = {
+        "https://api.deepl.com/v2/glossary-language-pairs",
+        ?DEFAULT_HEADERS
+    },
+
+    ApiResponse = jiffy:encode(#{
+        <<"supported_languages">> => [
+            #{<<"source_lang">> => <<"xy">>, <<"target_lang">> => <<"yz">>}
+        ]
+    }),
+
+    ExpectedResult = {ok, [
+        {"xy", "yz"}
+    ]},
+
+    expect_request(get, Request, ApiResponse),
+    ExpectedResult = deeperl:glossary_language_pairs().

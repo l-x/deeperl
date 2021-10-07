@@ -52,6 +52,7 @@
     glossary_entries/1,
     glossary_delete/1,
     glossary_create/4,
+    glossary_language_pairs/0,
 
     translate/2,
     translate/3,
@@ -124,6 +125,11 @@ glossary_delete(GlossaryId) ->
 glossary_create(Name, SourceLang, TargetLang, Entries) ->
     gen_server:call(?SERVER, {create_glossary, Name, SourceLang, TargetLang, Entries}).
 
+-spec glossary_language_pairs() ->
+    {ok, [{SourceLanguage :: language(), TargetLanguage :: language()}]} | error().
+glossary_language_pairs() ->
+    gen_server:call(?SERVER, {glossary_language_pairs}).
+
 %% @doc Translate a list of texts
 -spec translate(TargetLang :: language(), Texts :: [nonempty_str_or_binary()]) ->
     {ok, [{DetectedLanguage :: language(), Text :: nonempty_str_or_binary()}]} | error().
@@ -177,6 +183,9 @@ handle_call({delete_glossary, GlossaryId}, _From, State) ->
 
 handle_call({create_glossary, Name, SourceLang, TargetLang, Entries}, _From, State) ->
     {reply, deeperl_client:call(config(State), {deeperl_glossary_create, {Name, SourceLang, TargetLang, Entries}}), State};
+
+handle_call({glossary_language_pairs}, _From, State) ->
+    {reply, deeperl_client:call(config(State), {deeperl_glossary_language_pairs, {}}), State};
 
 handle_call({translate, TargetLang, Texts, #{} = Options}, _From, State) ->
     {reply, deeperl_client:call(config(State), {deeperl_translate, {TargetLang, Texts, Options}}), State};
