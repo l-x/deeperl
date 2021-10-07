@@ -1,5 +1,6 @@
-[![Hex pm](https://img.shields.io/hexpm/l/deeperl.svg?style=flat)](https://hex.pm/packages/deeperl)
-[![Hex pm](https://img.shields.io/hexpm/v/deeperl.svg?style=flat)](https://hex.pm/packages/deeperl)
+[![Codeberg](https://img.shields.io/badge/Codeberg-deeperl-green?logo=codeberg&style=for-the-badge)](https://codeberg.org/l-x/deeperl)
+[![Hex pm](https://img.shields.io/hexpm/v/deeperl.svg?style=for-the-badge&)](https://hex.pm/packages/deeperl)
+[![Hex pm](https://img.shields.io/hexpm/l/deeperl.svg?style=for-the-badge&)](https://hex.pm/packages/deeperl)
 
 # deeperl
 
@@ -14,13 +15,13 @@ An Erlang/OTP client application for the official [DeepL  API] Version 2.
   {deeperl, {git, "https://codeberg.org/l-x/deeperl.git", {branch, "main"}}},
   
   % Specific version (git):
-  {deeperl, {git, "https://codeberg.org/l-x/deeperl.git", {tag, "0.9.0"}}},
+  {deeperl, {git, "https://codeberg.org/l-x/deeperl.git", {tag, "0.10.0"}}},
 
   % Latest version (hex):
   deeperl,
 
   % Specific version (hex):
-  {deeperl, "0.9.0"}
+  {deeperl, "0.10.0"}
 ]}.
 ``` 
 
@@ -40,8 +41,6 @@ $ rebar3 shell
 Or simply add deeperl to the applications property of your .app files.
 
 ### Authentication
-> [Official API documentation](https://www.deepl.com/docs-api/accessing-the-api/authentication/)
-
 To use the DeepL API an authentication key is required. 
 
 When booting deeperl this key is retrieved from `application:get_env(deeperl, auth_key)` and stored in the deeperl server processes internal state.
@@ -89,7 +88,6 @@ ok
 ```
 
 ### Translating Text
-> [Official API documentation](https://www.deepl.com/docs-api/translating-text/)
 
 ```erlang
 5> {ok, Translations} = deeperl:translate("de", ["Rien ne vas plus", <<"Game over">>]).
@@ -101,7 +99,6 @@ ok
      {"EN",<<"Spiel vorbei">>}]}
 ```
 ### Listing supported languages
-> [Official API documentation](https://www.deepl.com/docs-api/other-functions/listing-supported-languages/)
 
 #### Supported source languages
 ```erlang
@@ -130,15 +127,27 @@ ok
 ```
 
 ### Monitoring usage
-> [Official API documentation](https://www.deepl.com/docs-api/other-functions/monitoring-usage/)
+
 ```erlang
 11> {ok, {CharacterCount, CharacterLimit}} = deeperl:usage().
 {ok,{28788,50000000}}
 ```
 
 ### Managing glossaries
+
+#### List language pairs supported by glossaries
+
+```erlang
+12> {ok, LanguagePairs} = deeperl:glossary_language_pairs().
+{ok,[{"de","en"},
+     {"en","de"},
+     {"en","es"},
+     {"en","fr"},
+     {"es","en"},
+     {"fr","en"}]}
+```
+
 #### Creating a glossary
-> [Official API documentation](https://www.deepl.com/docs-api/managing-glossaries/creating-a-glossary/)
 
 ```erlang
 12> Entries = [{<<"Entry1">>, <<"Translation1">>}, {<<"Entry2">>, <<"Translation2">>}, {<<"Entry3">>, <<"Translation3">>}].
@@ -158,7 +167,6 @@ ok
 ```
 
 #### Listing glossary information
-> [Official API documentation](https://www.deepl.com/docs-api/managing-glossaries/listing-glossary-information/)
 
 ```erlang
 15> {ok, Glossary} = deeperl:glossary_information(GlossaryId).
@@ -170,7 +178,6 @@ ok
 ```
 
 #### Listing entries of a glossary
-> [Official API documentation](https://www.deepl.com/docs-api/managing-glossaries/listing-entries-of-a-glossary/)
 
 ```erlang
 16> {ok, _} = deeperl:glossary_entries(GlossaryId).
@@ -180,7 +187,6 @@ ok
 ```
 
 #### Listing glossaries
-> [Official API documentation](https://www.deepl.com/docs-api/managing-glossaries/listing-glossaries/)
 
 ```erlang
 17> {ok, Glossaries} = deeperl:glossary_list().
@@ -197,7 +203,6 @@ ok
 ```
 
 #### Deleting a glossary
-> [Official API documentation](https://www.deepl.com/docs-api/managing-glossaries/deleing-a-glossary/)
 
 ```erlang
 18> ok = deeperl:glossary_delete(GlossaryId).

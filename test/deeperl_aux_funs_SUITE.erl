@@ -20,7 +20,7 @@ auth_key(_Config) ->
         "https://api.deepl.com/v2/glossaries",
         [
             {"Authorization", "DeepL-Auth-Key some_authkey"},
-            {"User-Agent", "deeperl/0.9.0 (https://codeberg.org/l-x/deeperl)"}
+            {"User-Agent", "deeperl/0.10.0 (https://codeberg.org/l-x/deeperl)"}
         ]
     },
 
@@ -45,7 +45,7 @@ free_auth_key(_Config) ->
         "https://api-free.deepl.com/v2/glossaries",
         [
             {"Authorization", "DeepL-Auth-Key some_authkey:fx"},
-            {"User-Agent", "deeperl/0.9.0 (https://codeberg.org/l-x/deeperl)"}
+            {"User-Agent", "deeperl/0.10.0 (https://codeberg.org/l-x/deeperl)"}
         ]
     },
 
