@@ -6,6 +6,7 @@
 all() ->
     [
         auth_key,
+        free_auth_key,
         httpc_profile,
         usage,
         source_languages,
@@ -30,6 +31,31 @@ auth_key(_Config) ->
 
         {ok, {{ok, 200, "status message"}, {}, ResponseBody}}
       end,
+
+    meck:expect(httpc, request, MockFun),
+
+    deeperl:glossary_list(),
+
+    ok = deeperl:auth_key(""). % Reset to empty password
+
+free_auth_key(_Config) ->
+    ok = deeperl:auth_key("some_authkey:fx"),
+
+    Request = {
+        "https://api-free.deepl.com/v2/glossaries",
+        [
+            {"Authorization", "DeepL-Auth-Key some_authkey:fx"},
+            {"User-Agent", "deeperl/0.8.0 (https://codeberg.org/l-x/deeperl)"}
+        ]
+    },
+
+    ResponseBody = <<"{\"glossaries\": []}">>,
+
+    MockFun = fun(_ActualRequestMethod, ActualRequest, [], [], default) ->
+        ActualRequest = Request,
+
+        {ok, {{ok, 200, "status message"}, {}, ResponseBody}}
+              end,
 
     meck:expect(httpc, request, MockFun),
 

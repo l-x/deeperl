@@ -215,6 +215,7 @@ terminate(_Reason, _State) ->
 code_change(_OldVsn, State, _Extra) ->
     {ok, State}.
 
+%% @private
 config(#state{auth_key = AuthKey, httpc_profile = HttpcProfile}) ->
     {
         HttpcProfile,
