@@ -73,7 +73,7 @@ By default deeperl uses the `default` profile for `httpc`. The used profile is s
 ```erlang
 [
   {deeperl, [
-    {httpc_profile, profile_name}
+    {httpc_profile, my_profile}
   ]}
 ].
 ```
@@ -150,26 +150,26 @@ ok
 #### Creating a glossary
 
 ```erlang
-12> Entries = [{<<"Entry1">>, <<"Translation1">>}, {<<"Entry2">>, <<"Translation2">>}, {<<"Entry3">>, <<"Translation3">>}].
+13> Entries = [{<<"Entry1">>, <<"Translation1">>}, {<<"Entry2">>, <<"Translation2">>}, {<<"Entry3">>, <<"Translation3">>}].
 [{<<"Entry1">>,<<"Translation1">>},
  {<<"Entry2">>,<<"Translation2">>},
  {<<"Entry3">>,<<"Translation3">>}]
 
-13> {ok, Glossary} = deeperl:glossary_create(<<"Glossary Name">>, "en", "de", Entries).
+14> {ok, Glossary} = deeperl:glossary_create(<<"Glossary Name">>, "en", "de", Entries).
 {ok,#{creation_time => "2021-09-29T07:31:01.19704+00:00",
       entry_count => 3,
       id => "610a3145-be30-424c-8eeb-bb06a405c90e",
       name => <<"Glossary Name">>,source_lang => "en",
       target_lang => "de"}}
 
-14> GlossaryId = maps:get(id, Glossary).
+15> GlossaryId = maps:get(id, Glossary).
 "610a3145-be30-424c-8eeb-bb06a405c90e"
 ```
 
 #### Listing glossary information
 
 ```erlang
-15> {ok, Glossary} = deeperl:glossary_information(GlossaryId).
+16> {ok, Glossary} = deeperl:glossary_information(GlossaryId).
 {ok,#{creation_time => "2021-09-29T07:31:01.19704+00:00",
       entry_count => 3,
       id => "610a3145-be30-424c-8eeb-bb06a405c90e",
@@ -180,7 +180,7 @@ ok
 #### Listing entries of a glossary
 
 ```erlang
-16> {ok, _} = deeperl:glossary_entries(GlossaryId).
+17> {ok, _} = deeperl:glossary_entries(GlossaryId).
 {ok,[{"Entry1","Translation1"},
      {"Entry2","Translation2"},
      {"Entry3","Translation3"}]}
@@ -189,7 +189,7 @@ ok
 #### Listing glossaries
 
 ```erlang
-17> {ok, Glossaries} = deeperl:glossary_list().
+18> {ok, Glossaries} = deeperl:glossary_list().
 {ok,[#{creation_time => "2021-09-29T07:31:01.19704+00:00",
       entry_count => 3,
       id => "610a3145-be30-424c-8eeb-bb06a405c90e",
@@ -205,7 +205,7 @@ ok
 #### Deleting a glossary
 
 ```erlang
-18> ok = deeperl:glossary_delete(GlossaryId).
+19> ok = deeperl:glossary_delete(GlossaryId).
 ok
 ```
 
