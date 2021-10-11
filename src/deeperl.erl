@@ -41,6 +41,11 @@
 
 %% API
 
+-export_type([
+    glossary/0,
+    translation_options/0
+]).
+
 -export([
     start_link/1,
 
